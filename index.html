@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RuleSmith: Multi-Agent LLMs for Automated Game Balancing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --surface: #16161a;
+      --border: #2a2a2e;
+      --text: #e4e4e7;
+      --muted: #71717a;
+      --accent: #a78bfa;
+      --accent-dim: rgba(167, 139, 250, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    .hero-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    .hero {
+      display: flex;
+      gap: 2.5rem;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-left {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hero-right {
+      flex-shrink: 0;
+      width: 42%;
+      max-width: 420px;
+    }
+
+    @media (max-width: 820px) {
+      .hero {
+        flex-direction: column;
+      }
+      .hero-right {
+        width: 100%;
+        max-width: 100%;
+      }
+      .teaser-fig {
+        position: static;
+      }
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5.5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 1.5rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero .abstract-text {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+    }
+
+    .highlight-box {
+      background: var(--accent-dim);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .highlight-box p {
+      font-size: 0.9rem;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .highlight-box strong {
+      color: var(--accent);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .teaser-fig {
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .teaser-fig img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+
+    .teaser-fig .caption {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .authors-block {
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .authors-block .names {
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .authors-block .names a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .authors-block .names a:hover {
+      text-decoration: underline;
+    }
+
+    .authors-block .affiliations {
+      font-size: 0.85rem;
+    }
+
+    .abstract h2,
+    .section h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .abstract p,
+    .section p {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section ul {
+      margin: 0.5rem 0 0 1.25rem;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .section li {
+      margin-bottom: 0.35rem;
+    }
+
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    .gallery h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .gallery-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .gallery-item figcaption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .gallery-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .keywords {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .fig-block {
+      margin-bottom: 2rem;
+    }
+
+    .fig-block img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .fig-block .caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.6rem;
+      text-align: center;
+    }
+
+    th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    td.balanced {
+      background: var(--accent-dim);
+    }
+
+    .results-section h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .results-section .table-caption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero-wrap">
+    <div class="hero">
+      <div class="hero-left">
+        <h1>RuleSmith</h1>
+        <p class="subtitle">Multi-Agent LLMs for Automated Game Balancing</p>
+        <p class="abstract-text">
+          Game balancing is a longstanding challenge requiring repeated playtesting, expert intuition, and extensive manual tuning. We introduce <em>RuleSmith</em>, the first framework that achieves automated game balancing by leveraging the reasoning capabilities of multi-agent LLMs. It couples a game engine, multi-agent LLMs self-play, and Bayesian optimization operating over a multi-dimensional rule space. As a proof of concept, we instantiate RuleSmith on <em>CivMini</em>, a simplified civilization-style game containing heterogeneous factions, economy systems, production rules, and combat mechanics, all governed by tunable parameters. LLM agents interpret textual rulebooks and game states to generate actions, to conduct fast evaluation of balance metrics such as win-rate disparities. To search the parameter landscape efficiently, we integrate Bayesian optimization with acquisition-based adaptive sampling and discrete projection: promising candidates receive more evaluation games for accurate assessment, while exploratory candidates receive fewer games for efficient exploration. Experiments show that RuleSmith converges to highly balanced configurations and provides interpretable rule adjustments that can be directly applied to downstream game systems. Our results illustrate that LLM simulation can serve as a powerful surrogate for automating design and balancing in complex multi-agent environments.
+        </p>
+        <div class="highlight-box">
+          <p>LLM self-play + Bayesian optimization can <strong>automatically balance</strong> asymmetric strategy games from natural-language rulebooks.</p>
+        </div>
+        <div class="btn-row">
+          <a href="#" class="btn btn-primary">📄 arXiv Paper</a>
+          <a href="#" class="btn btn-outline">🐙 GitHub Code</a>
+        </div>
+      </div>
+      <figure class="hero-right teaser-fig">
+        <img src="teaser.png" alt="Overview of RuleSmith" />
+        <p class="caption"><strong>Figure 1: Overview of RuleSmith.</strong> Multi-agent LLMs perform zero-shot self-play using solely the rule book under parameterized rule sets to automatically optimize asymmetric strategy games and other rule-driven systems.</p>
+      </figure>
+    </div>
+    <div class="authors-block">
+      <p class="names">
+        Ziyao Zeng<sup>1</sup>, Chen Liu<sup>1</sup>, Tianyu Liu<sup>1</sup>, Hao Wang<sup>2</sup>, Xiatao Sun<sup>1</sup>, Fengyu Yang<sup>1</sup>, Xiaofeng Liu<sup>1</sup>, Zhiwen Fan<sup>2</sup>
+        &nbsp;·&nbsp; <a href="mailto:ziyao.zeng@yale.edu">ziyao.zeng@yale.edu</a> (corresponding)
+      </p>
+      <p class="affiliations">
+        <sup>1</sup>Yale University, New Haven, CT, USA &nbsp;·&nbsp; <sup>2</sup>Texas A&M University, College Station, TX, USA
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <section class="section">
+      <h2>Contributions</h2>
+      <ul>
+        <li><strong>Executable self-play from natural-language rulebooks.</strong> We show that multi-agent LLMs can perform zero-shot self-play in an executable, asymmetric strategy game from natural-language rulebooks and structured game states, producing legal and verifiable actions without training.</li>
+        <li><strong>Multi-agents pipeline for automated game balancing.</strong> We present a general framework that integrates multi-agent LLMs self-play with Bayesian optimization and acquisition-based adaptive sampling to automatically adjust rule parameters and achieve balanced outcomes in asymmetric strategic environments.</li>
+        <li><strong>Comprehensive empirical validation.</strong> Through systematic evaluations on CivMini across different model sizes (2B, 8B) and faction configurations, we demonstrate that RuleSmith consistently achieves near-balanced outcomes (50% ± 5% win rates), with interpretable parameters that transfer across evaluation settings.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Method Overview</h2>
+      <p>
+        We consider balancing an asymmetric, parameterized, turn-based strategy game by optimizing its rule parameters so that two roles (Empire and Nomads) achieve approximately equal win rates when controlled by LLM agents. RuleSmith uses two LLM agents to play the game from a natural-language rulebook; a Bayesian optimizer with acquisition-based adaptive sampling searches the rule space, allocating more evaluation games to promising candidates. The game <em>CivMini</em> exposes 12 tunable parameters (economy, combat, production, scoring); continuous proposals are discretized to valid rule configurations before evaluation.
+      </p>
+      <figure class="fig-block" style="margin-top: 1.5rem;">
+        <img src="method.png" alt="RuleSmith method overview" />
+        <p class="caption"><strong>Figure 2: Overview of the RuleSmith method.</strong> We represent CivMini as a parameterized rule space θ. Given a candidate θ_t, two LLM agents (Empire and Nomads) play N_t self-play games, producing a balance loss L(θ). A Bayesian optimizer maintains a surrogate g(θ) and selects new candidates by maximizing an acquisition function. The number of games N_t is adaptively set by Expected Improvement; continuous proposals are mapped to discrete rulesets via D(·) before evaluation.</p>
+      </figure>
+    </section>
+
+    <section class="section results-section">
+      <h2>Experimental Results</h2>
+      <p class="table-caption"><strong>Optimized winning chances</strong> under different training (rows) and evaluation (columns). <em>E</em> = Empire, <em>N</em> = Nomads. Each cell: Empire wins | Nomads wins. Near-balanced (50% ± 5%) in bold. Model sizes: 2B, 8B.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Train \ Eval</th>
+            <th>E<sub>2B</sub> vs N<sub>2B</sub></th>
+            <th>E<sub>2B</sub> vs N<sub>8B</sub></th>
+            <th>E<sub>8B</sub> vs N<sub>2B</sub></th>
+            <th>E<sub>8B</sub> vs N<sub>8B</sub></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>E<sub>2B</sub> vs N<sub>2B</sub></th>
+            <td class="balanced"><strong>48 | 52</strong></td>
+            <td>32 | 68</td>
+            <td>27 | 73</td>
+            <td class="balanced"><strong>55 | 45</strong></td>
+          </tr>
+          <tr>
+            <th>E<sub>2B</sub> vs N<sub>8B</sub></th>
+            <td>81 | 19</td>
+            <td class="balanced"><strong>47 | 53</strong></td>
+            <td>91 | 9</td>
+            <td>75 | 25</td>
+          </tr>
+          <tr>
+            <th>E<sub>8B</sub> vs N<sub>2B</sub></th>
+            <td>37 | 63</td>
+            <td>6 | 94</td>
+            <td class="balanced"><strong>52 | 48</strong></td>
+            <td>29 | 71</td>
+          </tr>
+          <tr>
+            <th>E<sub>8B</sub> vs N<sub>8B</sub></th>
+            <td class="balanced"><strong>53 | 47</strong></td>
+            <td>24 | 76</td>
+            <td>81 | 19</td>
+            <td class="balanced"><strong>51 | 49</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="table-caption" style="margin-top: 2rem;"><strong>Ablation on optimization methods.</strong> Random Search and (1+1)-ES use fixed N=64 games per iteration. BO with adaptive sampling uses N ∈ [16, 64]. Win rates as Empire | Nomads.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Random Search</th>
+            <th>(1+1)-ES</th>
+            <th>BO (adaptive)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>13 | 87</td>
+            <td>26 | 74</td>
+            <td class="balanced"><strong>51 | 49</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <table style="margin-top: 0.5rem;">
+        <thead>
+          <tr>
+            <th>BO (N=16)</th>
+            <th>BO (N=32)</th>
+            <th>BO (N=64)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>34 | 66</td>
+            <td>61 | 39</td>
+            <td class="balanced"><strong>48 | 52</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="table-caption" style="margin-top: 2rem;"><strong>Ablation on game designs.</strong> RuleSmith achieves balanced win rates across map sizes and turn limits (turns in parentheses).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>5×5 (16)</th>
+            <th>7×7 (16)</th>
+            <th>9×9 (32)</th>
+            <th>11×11 (32)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="balanced"><strong>53 | 47</strong></td>
+            <td class="balanced"><strong>51 | 49</strong></td>
+            <td class="balanced"><strong>48 | 52</strong></td>
+            <td class="balanced"><strong>51 | 49</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="gallery">
+      <h2>Game Rollout Visualizations</h2>
+      <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem;">Representative CivMini games under balanced parameters (InternVL3.5-8B for both factions).</p>
+      <figure class="gallery-item">
+        <img src="game1.gif" alt="Game 1: Nomad high-score victory" />
+        <figcaption><strong>Nomad high-score victory (16 turns).</strong> The Nomads expanded by producing six cavalry units and overwhelmed the Empire's defense. The Empire attempted to hold a defensive line with farmers and soldiers but was gradually eliminated, resulting in a board dominated by Nomad cavalry.</figcaption>
+      </figure>
+      <figure class="gallery-item">
+        <img src="game3.gif" alt="Game 3: Empire defense victory" />
+        <figcaption><strong>Empire defense victory.</strong> The Empire successfully defended against the Nomads' early aggression. Although the Nomads deployed four cavalry units to threaten the top-left, the Empire established a defense with three soldiers. After heavy attrition, the Empire secured the win through economic dominance, utilizing Farmer units to generate resources throughout the battle.</figcaption>
+      </figure>
+      <figure class="gallery-item">
+        <img src="game4.gif" alt="Game 4: Rapid Nomad conquest" />
+        <figcaption><strong>Rapid Nomad conquest (6 turns).</strong> Nomad Cavalry Unit 0 executed consecutive strikes on the Empire's city from turns 3 to 6, causing sustained damage. This aggression resulted in the destruction of the Empire's city and a rapid win.</figcaption>
+      </figure>
+      <figure class="gallery-item">
+        <img src="game13.gif" alt="Game 13: Empire score victory" />
+        <figcaption><strong>Empire score victory.</strong> The Empire successfully defended against a direct Nomad attack on their city. The Nomads rushed the top-left and began attacking on turn 5, but the soldiers systematically eliminated the cavalry. The Empire retained two soldiers and two farmers, securing a higher score through unit survival and resource accumulation.</figcaption>
+      </figure>
+    </section>
+
+    <footer>
+      <p>© 2026 RuleSmith. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>
