@@ -245,10 +245,15 @@
     }
 
     .gallery {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
       margin-top: 2.5rem;
+    }
+
+    .gallery h2,
+    .gallery > p {
+      grid-column: 1 / -1;
     }
 
     .gallery h2 {
@@ -257,7 +262,7 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
     .gallery-item {
@@ -265,6 +270,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
+      min-width: 0;
     }
 
     .gallery-item figcaption {
@@ -279,6 +285,13 @@
       width: 100%;
       height: auto;
       vertical-align: middle;
+      filter: brightness(0.92);
+    }
+
+    @media (max-width: 640px) {
+      .gallery {
+        grid-template-columns: 1fr;
+      }
     }
 
     footer {
@@ -314,6 +327,7 @@
       height: auto;
       border-radius: 12px;
       border: 1px solid var(--border);
+      filter: brightness(0.92);
     }
 
     .fig-block .caption {
