@@ -462,22 +462,9 @@
     <section class="section">
       <h2>The Game: CivMini</h2>
       <p>
-        <em>CivMini</em> is a minimalistic two-faction, turn-based asymmetric strategy game inspired by 4X games (eXplore, eXpand, eXploit, eXterminate). It runs on a <strong>7×7 grid</strong> with fully observable state. Two asymmetric factions compete: <strong>Empire</strong> and <strong>Nomads</strong>.
+        <em>CivMini</em> is a 7×7 grid, turn-based asymmetric game. <strong>Empire</strong> has Farmers (gather only) and Soldiers (combat only); <strong>Nomads</strong> have Cavalry (combat + move 2 cells/turn, gain resources by killing). Each turn, each unit takes one action: GATHER, MOVE, BATTLE, PRODUCE_RESOURCE, PRODUCE_UNIT, or PASS. <strong>Win:</strong> destroy the opponent’s city, or else highest score at turn limit (score = weighted resources + battles won + surviving units).
       </p>
-      <p><strong>Map, factions, and units.</strong> Each faction starts with a city (Empire at (1,1), Nomads at (5,5)) and initial units. <strong>Empire</strong> has a specialized economy: <code>Farmer</code> units only gather resources (no combat), <code>Soldier</code> units only fight (no gathering). <strong>Nomads</strong> have a single unit type, <code>Cavalry</code>, which can both battle and move 2 cells per turn (Empire units move 1). Nomads cannot gather resources; they gain resources by killing enemy units, which encourages an aggressive playstyle. Farmer HP is fixed (5); Soldier and Cavalry HP are tunable.
-      </p>
-      <p><strong>How to play.</strong> Play proceeds in discrete turns up to a maximum turn limit. Each turn, one player controls <em>all</em> of their units; each unit takes exactly one action per turn (multi-action mode). Allowed actions:</p>
-      <ul>
-        <li><code>GATHER</code> — collect resources on the current tile (Farmers only)</li>
-        <li><code>MOVE</code> — move up to the unit’s movement (1 for Empire, 2 for Cavalry) in Manhattan distance</li>
-        <li><code>BATTLE</code> — attack an adjacent enemy unit or city (parameterized damage)</li>
-        <li><code>PRODUCE_RESOURCE</code> — city generates resources</li>
-        <li><code>PRODUCE_UNIT</code> — city spends resources to spawn a unit in an adjacent empty cell</li>
-        <li><code>PASS</code> — no action</li>
-      </ul>
-      <p>Rules: one unit per tile, one action per unit per turn, cities are immobile and attackable (with HP). <strong>Victory:</strong> if one faction destroys the opponent’s city, that faction wins immediately. Otherwise, at the turn limit the game is decided by a <strong>score</strong>: score = θ<sub>res</sub>·resources + θ<sub>battle</sub>·battles_won + θ<sub>unit</sub>·surviving_units (weights are tunable).</p>
-
-      <p class="table-caption"><strong>Optimizable parameters (12 total).</strong> RuleSmith updates these to balance win rates. Ranges and precision used for discretization.</p>
+      <p class="table-caption"><strong>12 tunable parameters</strong> (RuleSmith optimizes these for balance):</p>
       <table>
         <thead>
           <tr>
@@ -618,7 +605,7 @@
       </figure>
       <figure class="gallery-item">
         <img src="game3.gif" alt="Game 3: Empire defense victory" />
-        <figcaption><strong>Empire defense victory.</strong> The Empire successfully defended against the Nomads' early aggression. Although the Nomads deployed four cavalry units to threaten the top-left, the Empire established a defense with three soldiers. After heavy attrition, the Empire secured the win through economic dominance, utilizing Farmer units to generate resources throughout the battle.</figcaption>
+        <figcaption><strong>Empire defense victory (16 turns).</strong> The Empire successfully defended against the Nomads' early aggression. Although the Nomads deployed four cavalry units to threaten the top-left, the Empire established a defense with three soldiers. After heavy attrition, the Empire secured the win through economic dominance, utilizing Farmer units to generate resources throughout the battle.</figcaption>
       </figure>
       <figure class="gallery-item">
         <img src="game4.gif" alt="Game 4: Rapid Nomad conquest" />
@@ -626,7 +613,7 @@
       </figure>
       <figure class="gallery-item">
         <img src="game13.gif" alt="Game 13: Empire score victory" />
-        <figcaption><strong>Empire score victory.</strong> The Empire successfully defended against a direct Nomad attack on their city. The Nomads rushed the top-left and began attacking on turn 5, but the soldiers systematically eliminated the cavalry. The Empire retained two soldiers and two farmers, securing a higher score through unit survival and resource accumulation.</figcaption>
+        <figcaption><strong>Empire score victory (16 turns).</strong> The Empire successfully defended against a direct Nomad attack on their city. The Nomads rushed the top-left and began attacking on turn 5, but the soldiers systematically eliminated the cavalry. The Empire retained two soldiers and two farmers, securing a higher score through unit survival and resource accumulation.</figcaption>
       </figure>
     </section>
 
