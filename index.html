@@ -361,6 +361,27 @@
       background: var(--accent-dim);
     }
 
+    td[colspan="3"] {
+      text-align: left;
+      font-weight: 600;
+      color: var(--muted);
+      padding-top: 0.75rem;
+      border-left: none;
+    }
+
+    td[colspan="3"]:first-child {
+      padding-top: 0.5rem;
+    }
+
+    .section code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: var(--surface);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
     .results-section h2 {
       margin-bottom: 0.5rem;
     }
@@ -386,7 +407,7 @@
           <p>LLM self-play + Bayesian optimization can <strong>automatically balance</strong> asymmetric strategy games from natural-language rulebooks.</p>
         </div>
         <div class="btn-row">
-          <a href="#" class="btn btn-primary">📄 arXiv Paper</a>
+          <a href="https://arxiv.org/abs/2602.06232" class="btn btn-primary">📄 arXiv Paper</a>
           <a href="https://github.com/Adonis-galaxy/RuleSmith" class="btn btn-outline">🐙 GitHub Code</a>
         </div>
       </div>
@@ -428,9 +449,57 @@
     </section>
 
     <section class="section">
+      <h2>The Game: CivMini</h2>
+      <p>
+        <em>CivMini</em> is a minimalistic two-faction, turn-based asymmetric strategy game inspired by 4X games (eXplore, eXpand, eXploit, eXterminate). It runs on a <strong>7×7 grid</strong> with fully observable state. Two asymmetric factions compete: <strong>Empire</strong> and <strong>Nomads</strong>.
+      </p>
+      <p><strong>Map, factions, and units.</strong> Each faction starts with a city (Empire at (1,1), Nomads at (5,5)) and initial units. <strong>Empire</strong> has a specialized economy: <code>Farmer</code> units only gather resources (no combat), <code>Soldier</code> units only fight (no gathering). <strong>Nomads</strong> have a single unit type, <code>Cavalry</code>, which can both battle and move 2 cells per turn (Empire units move 1). Nomads cannot gather resources; they gain resources by killing enemy units, which encourages an aggressive playstyle. Farmer HP is fixed (5); Soldier and Cavalry HP are tunable.
+      </p>
+      <p><strong>How to play.</strong> Play proceeds in discrete turns up to a maximum turn limit. Each turn, one player controls <em>all</em> of their units; each unit takes exactly one action per turn (multi-action mode). Allowed actions:</p>
+      <ul>
+        <li><code>GATHER</code> — collect resources on the current tile (Farmers only)</li>
+        <li><code>MOVE</code> — move up to the unit’s movement (1 for Empire, 2 for Cavalry) in Manhattan distance</li>
+        <li><code>BATTLE</code> — attack an adjacent enemy unit or city (parameterized damage)</li>
+        <li><code>PRODUCE_RESOURCE</code> — city generates resources</li>
+        <li><code>PRODUCE_UNIT</code> — city spends resources to spawn a unit in an adjacent empty cell</li>
+        <li><code>PASS</code> — no action</li>
+      </ul>
+      <p>Rules: one unit per tile, one action per unit per turn, cities are immobile and attackable (with HP). <strong>Victory:</strong> if one faction destroys the opponent’s city, that faction wins immediately. Otherwise, at the turn limit the game is decided by a <strong>score</strong>: score = θ<sub>res</sub>·resources + θ<sub>battle</sub>·battles_won + θ<sub>unit</sub>·surviving_units (weights are tunable).</p>
+
+      <p class="table-caption"><strong>Optimizable parameters (12 total).</strong> RuleSmith updates these to balance win rates. Ranges and precision used for discretization.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Range</th>
+            <th>Precision</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="3"><em>Economy</em></td></tr>
+          <tr><td>Initial resources</td><td>[2, 10]</td><td>integer</td></tr>
+          <tr><td>Empire farmer gather</td><td>[1, 5]</td><td>integer</td></tr>
+          <tr><td>Nomads kill resource gain</td><td>[1, 10]</td><td>integer</td></tr>
+          <tr><td colspan="3"><em>Combat</em></td></tr>
+          <tr><td>Empire damage</td><td>[1, 5]</td><td>integer</td></tr>
+          <tr><td>Nomads damage</td><td>[1, 5]</td><td>integer</td></tr>
+          <tr><td>Empire soldier HP</td><td>[4, 16]</td><td>integer</td></tr>
+          <tr><td>Nomads cavalry HP</td><td>[4, 16]</td><td>integer</td></tr>
+          <tr><td colspan="3"><em>Production</em></td></tr>
+          <tr><td>Empire unit cost</td><td>[2, 10]</td><td>integer</td></tr>
+          <tr><td>Nomads unit cost</td><td>[2, 10]</td><td>integer</td></tr>
+          <tr><td colspan="3"><em>Scoring</em></td></tr>
+          <tr><td>Resource weight</td><td>[0.1, 0.5]</td><td>0.1</td></tr>
+          <tr><td>Battle weight</td><td>[1, 5]</td><td>integer</td></tr>
+          <tr><td>Unit weight</td><td>[1, 5]</td><td>integer</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
       <h2>Method Overview</h2>
       <p>
-        We consider balancing an asymmetric, parameterized, turn-based strategy game by optimizing its rule parameters so that two roles (Empire and Nomads) achieve approximately equal win rates when controlled by LLM agents. RuleSmith uses two LLM agents to play the game from a natural-language rulebook; a Bayesian optimizer with acquisition-based adaptive sampling searches the rule space, allocating more evaluation games to promising candidates. The game <em>CivMini</em> exposes 12 tunable parameters (economy, combat, production, scoring); continuous proposals are discretized to valid rule configurations before evaluation.
+        We consider balancing an asymmetric, parameterized, turn-based strategy game by optimizing its rule parameters so that two roles (Empire and Nomads) achieve approximately equal win rates when controlled by LLM agents. RuleSmith uses two LLM agents to play the game from a natural-language rulebook; a Bayesian optimizer with acquisition-based adaptive sampling searches the rule space, allocating more evaluation games to promising candidates. Continuous proposals are discretized to valid rule configurations (using the precision above) before evaluation.
       </p>
       <figure class="fig-block" style="margin-top: 1.5rem;">
         <img src="method.png" alt="RuleSmith method overview" />
