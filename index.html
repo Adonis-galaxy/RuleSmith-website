@@ -413,6 +413,7 @@
       <div class="hero-left">
         <h1>RuleSmith</h1>
         <p class="subtitle">Multi-Agent LLMs for Automated Game Balancing</p>
+        <p class="subtitle"><strong>NeurIPS 2026</strong></p>
         <p class="abstract-text">
           Game balancing is a longstanding challenge requiring repeated playtesting, expert intuition, and extensive manual tuning. We introduce <em>RuleSmith</em>, the first framework that achieves automated game balancing by leveraging the reasoning capabilities of multi-agent LLMs. It couples a game engine, multi-agent LLMs self-play, and Bayesian optimization operating over a multi-dimensional rule space. As a proof of concept, we instantiate RuleSmith on <em>CivMini</em>, a simplified civilization-style game containing heterogeneous factions, economy systems, production rules, and combat mechanics, all governed by tunable parameters. LLM agents interpret textual rulebooks and game states to generate actions, to conduct fast evaluation of balance metrics such as win-rate disparities. To search the parameter landscape efficiently, we integrate Bayesian optimization with acquisition-based adaptive sampling and discrete projection: promising candidates receive more evaluation games for accurate assessment, while exploratory candidates receive fewer games for efficient exploration. Experiments show that RuleSmith converges to highly balanced configurations and provides interpretable rule adjustments that can be directly applied to downstream game systems. Our results illustrate that LLM simulation can serve as a powerful surrogate for automating design and balancing in complex multi-agent environments.
         </p>
@@ -432,17 +433,23 @@
     <div class="authors-block">
       <p class="names">
         <a href="https://adonis-galaxy.github.io/homepage/">Ziyao Zeng</a><sup>1</sup>,
-        <a href="https://chenliu-1996.github.io/">Chen Liu</a><sup>1</sup>,
-        <a href="https://helloworldlty.github.io/cv/">Tianyu Liu</a><sup>1</sup>,
         <a href="https://haohww.github.io/">Hao Wang</a><sup>2</sup>,
+        <a href="https://chenliu-1996.github.io/">Chen Liu</a><sup>1</sup>,
+        Youheng Yao<sup>1</sup>,
+        Jingcheng Ni<sup>1</sup>,
+        <a href="https://helloworldlty.github.io/cv/">Tianyu Liu</a><sup>1</sup>,
         <a href="https://sunxiatao.me/about.html">Xiatao Sun</a><sup>1</sup>,
         <a href="https://fredfyyang.github.io/">Fengyu Yang</a><sup>1</sup>,
+        Chenyu You<sup>3</sup>,
         <a href="https://medicine.yale.edu/profile/xiaofeng-liu/">Xiaofeng Liu</a><sup>1</sup>,
+        Daniel Rakita<sup>1</sup>,
+        Ronald R. Coifman<sup>1</sup>,
+        Yuval Kluger<sup>1</sup>,
         <a href="https://zhiwenfan.github.io/">Zhiwen Fan</a><sup>2</sup>
         &nbsp;
       </p>
       <p class="affiliations">
-        <sup>1</sup> Yale University &nbsp; &nbsp; <sup>2</sup> Texas A&amp;M University
+        <sup>1</sup> Yale University &nbsp; &nbsp; <sup>2</sup> Texas A&amp;M University &nbsp; &nbsp; <sup>3</sup> Stony Brook University
       </p>
       <p class="contact">
         For any questions, please contact: <a href="mailto:ziyao.zeng@yale.edu">ziyao.zeng@yale.edu</a>
@@ -633,10 +640,10 @@
     <section class="section">
       <h2>Citation</h2>
       <p>If you find our work useful, please cite:</p>
-      <pre class="bibtex">@article{zeng2026rulesmith,
+      <pre class="bibtex">@inproceedings{zeng2026rulesmith,
   title = {Rulesmith: multi-agent llms for automated game balancing},
-  author = {Zeng, Ziyao and Liu, Chen and Liu, Tianyu and Wang, Hao and Sun, Xiatao and Yang, Fengyu and Liu, Xiaofeng and Fan, Zhiwen},
-  journal = {arXiv preprint arXiv:2602.06232},
+  author = {Zeng, Ziyao and Wang, Hao and Liu, Chen and Yao, Youheng and Ni, Jingcheng and Liu, Tianyu and Sun, Xiatao and Yang, Fengyu and You, Chenyu and Liu, Xiaofeng and Rakita, Daniel and Coifman, Ronald R. and Kluger, Yuval and Fan, Zhiwen},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year = {2026}
 }</pre>
     </section>
