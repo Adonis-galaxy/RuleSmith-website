@@ -4,653 +4,936 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RuleSmith: Multi-Agent LLMs for Automated Game Balancing</title>
-  <link rel="icon" href="logo_rulesmith.png" type="image/png" />
+  <meta name="description" content="RuleSmith couples multi-agent LLM self-play with Bayesian optimization to automatically balance asymmetric strategy games from natural-language rulebooks. NeurIPS 2026." />
+  <meta property="og:title" content="RuleSmith: Multi-Agent LLMs for Automated Game Balancing" />
+  <meta property="og:description" content="LLM agents play the game from its rulebook; Bayesian optimization re-forges the rules until both sides win about half the time. NeurIPS 2026." />
+  <meta property="og:image" content="https://adonis-galaxy.github.io/RuleSmith-website/teaser.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#0e0c0a" />
+  <link rel="icon" href="assets/logo_mark.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0d0d0f;
-      --surface: #16161a;
-      --border: #2a2a2e;
-      --text: #e4e4e7;
-      --muted: #71717a;
-      --accent: #a78bfa;
-      --accent-dim: rgba(167, 139, 250, 0.15);
+      --bg: #0e0c0a;
+      --bg-2: #14110e;
+      --surface: #1a1612;
+      --surface-2: #231d17;
+      --line: #33291f;
+      --line-2: #4b3d2e;
+      --text: #f1e8d8;
+      --muted: #b4a58e;
+      --dim: #7f715d;
+      --ember: #ff8a3d;
+      --ember-2: #ff5f2e;
+      --gold: #f6c56b;
+      --molten: linear-gradient(100deg, #ffe39a 0%, #ffb24a 34%, #ff7a32 64%, #e8461f 100%);
+      --empire: #7097ff;
+      --empire-deep: #3a67d9;
+      --empire-soft: rgba(112, 151, 255, .14);
+      --nomads: #3ad79a;
+      --nomads-deep: #15a26d;
+      --nomads-soft: rgba(58, 215, 154, .13);
+      --paper: #efe4c9;
+      --paper-2: #e5d6b4;
+      --ink: #3b2f22;
+      --radius: 18px;
+      --wrap: 1160px;
+      --serif: 'Fraunces', Georgia, serif;
+      --sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+      --caps: 'Cinzel', 'Fraunces', serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 76px; }
     body {
-      font-family: 'DM Sans', system-ui, sans-serif;
+      font-family: var(--sans);
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-
-    .wrap {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem 4rem;
-    }
-
-    .hero-wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1.5rem 3rem;
-    }
-
-    .hero {
-      display: flex;
-      gap: 2.5rem;
-      align-items: flex-start;
-      margin-bottom: 2.5rem;
-    }
-
-    .hero-left {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .hero-right {
-      flex-shrink: 0;
-      width: 42%;
-      max-width: 420px;
-    }
-
-    @media (max-width: 820px) {
-      .hero {
-        flex-direction: column;
-      }
-      .hero-right {
-        width: 100%;
-        max-width: 100%;
-      }
-      .teaser-fig {
-        position: static;
-      }
-    }
-
-    h1 {
-      font-size: clamp(2.4rem, 5.5vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.35rem;
-      color: var(--accent);
-    }
-
-    .subtitle {
-      font-size: 1.5rem;
-      color: var(--muted);
-      margin-bottom: 1.25rem;
-    }
-
-    .hero .abstract-text {
-      font-size: 0.95rem;
-      color: var(--text);
       line-height: 1.65;
-      margin-bottom: 1.25rem;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
-
-    .highlight-box {
-      background: var(--accent-dim);
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
-      padding: 0.9rem 1rem;
-      margin-bottom: 1.25rem;
+    body::before { /* film grain */
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
+    a { color: inherit; }
+    img { max-width: 100%; height: auto; display: block; }
+    sup { font-size: .62em; }
+    ::selection { background: rgba(255, 138, 61, .35); }
 
-    .highlight-box p {
-      font-size: 0.9rem;
-      color: var(--text);
-      margin: 0;
+    .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; }
+    .molten {
+      background: var(--molten); background-size: 200% 100%;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: shimmer 9s ease-in-out infinite;
     }
+    @keyframes shimmer { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+    .e { color: var(--empire); }
+    .n { color: var(--nomads); }
 
-    .highlight-box strong {
-      color: var(--accent);
+    /* ---------- nav ---------- */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      transition: background .3s, border-color .3s, backdrop-filter .3s;
+      border-bottom: 1px solid transparent;
     }
+    .nav.scrolled { background: rgba(14, 12, 10, .78); backdrop-filter: blur(14px) saturate(1.3); -webkit-backdrop-filter: blur(14px) saturate(1.3); border-color: var(--line); }
+    .nav-inner { max-width: var(--wrap); margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 28px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--serif); font-weight: 700; font-size: 1.15rem; letter-spacing: -.01em; }
+    .brand img { width: 30px; height: auto; filter: drop-shadow(0 0 10px rgba(255, 140, 60, .35)); }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: .86rem; color: var(--muted); padding: 7px 12px; border-radius: 999px; transition: color .2s, background .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--text); background: rgba(255, 255, 255, .06); }
+    @media (max-width: 900px) { .nav-links { display: none; } }
 
-    .btn-row {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
+    /* ---------- buttons ---------- */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border-radius: 8px;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
+      display: inline-flex; align-items: center; gap: .55rem; padding: .78rem 1.25rem; border-radius: 12px;
+      font: 600 .95rem/1 var(--sans); text-decoration: none; border: 1px solid var(--line-2); color: var(--text);
+      background: rgba(255, 255, 255, .03); cursor: pointer; transition: transform .2s, border-color .2s, background .2s, box-shadow .2s;
+    }
+    .btn svg { width: 18px; height: 18px; flex: none; }
+    .btn:hover { transform: translateY(-2px); border-color: var(--ember); background: rgba(255, 138, 61, .08); }
+    .btn-primary { background: var(--molten); color: #2a1406; border: none; box-shadow: 0 8px 30px -8px rgba(255, 106, 43, .6), inset 0 1px 0 rgba(255, 255, 255, .4); }
+    .btn-primary:hover { background: var(--molten); box-shadow: 0 12px 36px -8px rgba(255, 106, 43, .8), inset 0 1px 0 rgba(255, 255, 255, .4); }
+
+    /* ---------- hero ---------- */
+    .hero { position: relative; min-height: 100vh; padding: 120px 0 56px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; isolation: isolate; }
+    .hero::before { content: ''; position: absolute; inset: 0; z-index: -2;
+      background:
+        radial-gradient(60% 50% at 78% 45%, rgba(255, 122, 50, .16), transparent 70%),
+        radial-gradient(50% 40% at 10% 100%, rgba(112, 151, 255, .10), transparent 70%),
+        radial-gradient(40% 35% at 95% 100%, rgba(58, 215, 154, .08), transparent 70%); }
+    .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 200px; z-index: -1; background: linear-gradient(transparent, var(--bg)); }
+    #embers { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
+    .hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 56px; align-items: center; }
+    .venue {
+      display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 10px; border-radius: 999px;
+      border: 1px solid rgba(246, 197, 107, .35); background: rgba(246, 197, 107, .07);
+      font: 700 .74rem/1 var(--caps); letter-spacing: .18em; color: var(--gold); text-decoration: none; margin-bottom: 26px;
+    }
+    .venue i { width: 8px; height: 8px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 0 4px rgba(255, 138, 61, .2), 0 0 14px var(--ember); animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(255, 138, 61, 0), 0 0 22px var(--ember); } }
+    h1.title { font: 800 clamp(4.2rem, 10.5vw, 8.4rem)/.88 var(--serif); letter-spacing: -.045em; margin-left: -.04em; filter: drop-shadow(0 6px 40px rgba(255, 110, 40, .28)); }
+    .tagline { font: 500 clamp(1.25rem, 2.3vw, 1.7rem)/1.3 var(--serif); font-style: italic; color: var(--text); margin-top: 18px; letter-spacing: -.01em; }
+    .lede { color: var(--muted); font-size: 1.06rem; max-width: 34em; margin-top: 22px; }
+    .lede b { color: var(--text); font-weight: 600; }
+    .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .hero-art { position: relative; perspective: 1200px; }
+    .hero-art .frame {
+      position: relative; border-radius: 22px; padding: 10px; transform-style: preserve-3d; transition: transform .35s ease-out;
+      background: linear-gradient(145deg, rgba(246, 197, 107, .5), rgba(80, 60, 40, .25) 40%, rgba(255, 106, 43, .45));
+      box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .8), 0 0 80px -20px rgba(255, 120, 50, .35);
+    }
+    .hero-art img { border-radius: 14px; width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .authors { margin-top: 18px; max-width: 40em; }
+    .authors .names { font-size: .86rem; line-height: 1.75; color: #d9cdb8; }
+    .authors .names a { text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .2s, color .2s; white-space: nowrap; }
+    .authors .names a:hover { color: var(--gold); border-color: var(--gold); }
+    .authors .names sup { color: var(--gold); margin-left: 1px; }
+    .authors .aff { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 6px; color: var(--dim); font-size: .76rem; }
+    .authors .aff sup { color: var(--gold); margin-right: 2px; }
+    .authors .aff .mail a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line-2); }
+    .scroll-cue { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); width: 24px; height: 38px; border: 1.5px solid var(--line-2); border-radius: 12px; }
+    .scroll-cue::after { content: ''; position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--gold); animation: cue 1.8s ease-in-out infinite; }
+    @keyframes cue { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
+    @media (max-width: 960px) {
+      .hero { min-height: auto; padding-top: 104px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 44px; }
+      .hero-art { max-width: 520px; }
+      .scroll-cue { display: none; }
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
+    /* ---------- forge strip: meter + stats ---------- */
+    .strip { padding: 24px 0 40px; }
+    .meter {
+      position: relative; border-radius: var(--radius); border: 1px solid var(--line); padding: 26px 28px 22px;
+      background: linear-gradient(180deg, var(--surface), var(--bg-2)); overflow: hidden;
     }
+    .meter-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; margin-bottom: 16px; }
+    .meter-head .lbl { font: 700 .72rem/1 var(--caps); letter-spacing: .2em; color: var(--gold); }
+    .meter-head .phase { font-family: var(--serif); font-size: 1.2rem; }
+    .meter-head .phase em { color: var(--muted); font-style: italic; }
+    .split { position: relative; height: 54px; border-radius: 12px; overflow: hidden; display: flex; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+    .split .se, .split .sn { display: flex; align-items: center; font: 700 1.05rem/1 var(--sans); white-space: nowrap; transition: flex-basis 1.6s cubic-bezier(.65, 0, .25, 1); overflow: hidden; }
+    .split .se { background: linear-gradient(90deg, #22408f, var(--empire-deep)); padding-left: 18px; color: #e8eeff; }
+    .split .sn { background: linear-gradient(90deg, var(--nomads-deep), #0d6b48); padding-right: 18px; justify-content: flex-end; color: #e2fff2; }
+    .split .mid { position: absolute; left: 50%; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+    .split .band { position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(246, 197, 107, .18) 0 6px, transparent 6px 12px); pointer-events: none; }
+    .meter-foot { display: flex; justify-content: space-between; margin-top: 10px; font: 500 .78rem/1 var(--mono); color: var(--dim); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 14px; }
+    .stat { border-radius: var(--radius); border: 1px solid var(--line); padding: 22px 22px 20px; background: linear-gradient(180deg, var(--surface), var(--bg-2)); }
+    .stat .v { font: 700 clamp(1.6rem, 2.9vw, 2.4rem)/1 var(--serif); letter-spacing: -.02em; white-space: nowrap; }
+    .stat .k { margin-top: 10px; color: var(--muted); font-size: .9rem; line-height: 1.45; }
+    @media (max-width: 860px) { .stats { grid-template-columns: 1fr 1fr; } }
 
-    .btn-primary:hover {
-      filter: brightness(1.1);
+    /* ---------- sections ---------- */
+    section.block { padding: 110px 0 0; }
+    .eyebrow { display: flex; align-items: center; gap: 14px; font: 700 .76rem/1 var(--caps); letter-spacing: .24em; color: var(--gold); text-transform: uppercase; }
+    .eyebrow::after { content: ''; height: 1px; width: 64px; background: linear-gradient(90deg, var(--gold), transparent); }
+    h2.h { font: 600 clamp(2rem, 4.4vw, 3.15rem)/1.08 var(--serif); letter-spacing: -.025em; margin-top: 16px; max-width: 20em; }
+    h2.h em { font-style: italic; font-weight: 500; }
+    .sub { color: var(--muted); font-size: 1.05rem; max-width: 46em; margin-top: 16px; }
+    .card { border-radius: var(--radius); border: 1px solid var(--line); background: linear-gradient(180deg, var(--surface), var(--bg-2)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03); }
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
+    .reveal.in { opacity: 1; transform: none; }
+    .cap { color: var(--dim); font-size: .86rem; line-height: 1.55; margin-top: 12px; }
+    .cap b { color: var(--muted); }
+
+    /* video */
+    .video-card { margin-top: 36px; padding: 10px; border-radius: 22px; background: linear-gradient(145deg, rgba(246, 197, 107, .35), rgba(60, 45, 30, .3) 45%, rgba(255, 106, 43, .3)); box-shadow: 0 40px 90px -40px rgba(0, 0, 0, .9); }
+    .video-card video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; background: #000; }
+
+    /* abstract */
+    .abstract-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; margin-top: 8px; }
+    .abstract-grid p.body { color: #ddd2bf; font-size: 1.02rem; line-height: 1.8; }
+    .abstract-grid p.body em { color: var(--text); }
+    .tldr { margin-top: 26px; padding: 22px 24px; border-radius: 16px; border: 1px solid rgba(255, 138, 61, .35); background: linear-gradient(135deg, rgba(255, 138, 61, .1), rgba(255, 138, 61, .02)); font-family: var(--serif); font-size: 1.22rem; line-height: 1.5; }
+    .tldr small { display: block; font: 700 .7rem/1 var(--caps); letter-spacing: .22em; color: var(--ember); margin-bottom: 10px; }
+    .tldr strong { font-weight: 600; }
+    .contribs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
+    .contrib { padding: 26px 24px; position: relative; overflow: hidden; transition: transform .3s, border-color .3s; }
+    .contrib:hover { transform: translateY(-4px); border-color: var(--line-2); }
+    .contrib .num { font: 700 .8rem/1 var(--caps); letter-spacing: .2em; color: var(--gold); }
+    .contrib h3 { font: 600 1.28rem/1.25 var(--serif); margin: 14px 0 10px; letter-spacing: -.01em; }
+    .contrib p { color: var(--muted); font-size: .94rem; line-height: 1.65; }
+    .contrib .ico { position: absolute; right: 18px; top: 18px; width: 44px; height: 44px; opacity: .9; }
+    @media (max-width: 960px) { .abstract-grid, .contribs { grid-template-columns: 1fr; gap: 24px; } }
+
+    /* method */
+    .loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 44px; position: relative; }
+    .loop-step { padding: 22px 20px 20px; position: relative; transition: border-color .5s, background .5s, transform .5s; }
+    .loop-step .k { display: flex; align-items: center; gap: 10px; font: 700 .72rem/1 var(--caps); letter-spacing: .18em; color: var(--dim); transition: color .5s; }
+    .loop-step .k i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 .8rem/1 var(--sans); font-style: normal; letter-spacing: 0; border: 1px solid var(--line-2); color: var(--muted); transition: all .5s; }
+    .loop-step h4 { font: 600 1.12rem/1.3 var(--serif); margin: 14px 0 6px; }
+    .loop-step p { color: var(--muted); font-size: .9rem; line-height: 1.55; }
+    .loop-step.on { border-color: rgba(255, 138, 61, .6); background: linear-gradient(180deg, rgba(255, 138, 61, .1), var(--bg-2)); transform: translateY(-4px); }
+    .loop-step.on .k { color: var(--ember); }
+    .loop-step.on .k i { background: var(--molten); border-color: transparent; color: #2a1406; box-shadow: 0 0 18px rgba(255, 120, 50, .6); }
+    .loop-step:nth-child(-n+3)::after { content: ''; position: absolute; right: -12px; top: 34px; width: 10px; height: 10px; border-top: 1.5px solid var(--line-2); border-right: 1.5px solid var(--line-2); transform: rotate(45deg); }
+    .loop-back { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; color: var(--dim); font-size: .85rem; padding: 4px 6px; }
+    .loop-back::before { content: ''; flex: 1; height: 14px; border: 1.5px dashed var(--line-2); border-top: none; border-radius: 0 0 14px 14px; margin-top: -18px; }
+    .loop-back span { order: -1; white-space: nowrap; }
+    .paper-fig { margin-top: 30px; padding: 22px; border-radius: var(--radius); background: #fbf8f1; box-shadow: 0 30px 70px -40px rgba(0, 0, 0, .9); }
+    .paper-fig img { width: 100%; height: auto; }
+    .eqs { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-top: 16px; }
+    .eq { padding: 22px 24px; }
+    .eq .lbl { font: 700 .7rem/1 var(--caps); letter-spacing: .2em; color: var(--gold); }
+    .eq .math { font: italic 400 clamp(1.15rem, 2.2vw, 1.55rem)/1.4 var(--serif); margin: 14px 0 8px; white-space: nowrap; overflow-x: auto; }
+    .eq .math sub { font-size: .62em; font-style: normal; }
+    .eq p { color: var(--muted); font-size: .9rem; }
+    @media (max-width: 960px) { .loop { grid-template-columns: 1fr 1fr; } .loop-step:nth-child(2)::after { display: none; } .eqs { grid-template-columns: minmax(0, 1fr); } .loop-back { display: none; } }
+    @media (max-width: 560px) { .loop { grid-template-columns: 1fr; } .loop-step::after { display: none; } }
+
+    /* game */
+    .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+    .faction { padding: 24px; }
+    .faction h3 { font: 700 1.5rem/1 var(--serif); display: flex; align-items: center; gap: 12px; }
+    .faction .role { color: var(--muted); font-size: .92rem; margin-top: 8px; }
+    .faction ul { list-style: none; margin-top: 18px; display: grid; gap: 12px; }
+    .faction li { display: flex; gap: 14px; align-items: center; font-size: .94rem; color: #ddd2bf; }
+    .faction li b { color: var(--text); font-weight: 600; }
+    .tok { width: 40px; height: 40px; flex: none; }
+    .faction.emp { border-color: rgba(112, 151, 255, .3); background: linear-gradient(180deg, rgba(112, 151, 255, .08), var(--bg-2)); }
+    .faction.nom { border-color: rgba(58, 215, 154, .28); background: linear-gradient(180deg, rgba(58, 215, 154, .07), var(--bg-2)); }
+    .rules-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-top: 16px; }
+    .rules-row .card { padding: 22px 24px; }
+    .rules-row h4 { font: 700 .72rem/1 var(--caps); letter-spacing: .2em; color: var(--gold); margin-bottom: 14px; }
+    .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+    .acts code { font: 500 .78rem/1 var(--mono); padding: 8px 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); color: #e9dcc6; }
+    .rules-row p { color: #ddd2bf; font-size: .94rem; }
+    @media (max-width: 860px) { .game-grid, .rules-row { grid-template-columns: 1fr; } }
+
+    /* rulebook */
+    .rulebook { margin-top: 16px; display: grid; grid-template-columns: 1.55fr 1fr; overflow: hidden; }
+    .rb-params { padding: 26px 28px 22px; border-right: 1px solid var(--line); }
+    .rb-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .rb-top h3 { font: 600 1.4rem/1.2 var(--serif); }
+    .toggle { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); }
+    .toggle button { font: 600 .84rem/1 var(--sans); color: var(--muted); background: none; border: none; padding: 10px 14px; border-radius: 9px; cursor: pointer; transition: all .25s; }
+    .toggle button.on { color: #2a1406; background: var(--molten); box-shadow: 0 6px 20px -6px rgba(255, 106, 43, .7); }
+    .toggle button:not(.on):hover { color: var(--text); }
+    .rb-cat { font: 700 .66rem/1 var(--caps); letter-spacing: .2em; color: var(--dim); margin: 16px 0 6px; }
+    .rb-row { display: grid; grid-template-columns: 11.5em 1fr 3.4em; align-items: center; gap: 14px; padding: 6px 0; font-size: .9rem; }
+    .rb-row .nm { color: #ddd2bf; }
+    .rb-row .nm small { color: var(--dim); font: 500 .7rem/1 var(--mono); margin-left: 4px; }
+    .rb-track { position: relative; height: 30px; }
+    .rb-track::before { content: ''; position: absolute; left: 0; right: 0; top: 10px; height: 2px; border-radius: 2px; background: var(--line-2); }
+    .rb-track .lo, .rb-track .hi { position: absolute; top: 21px; font: 500 .66rem/1 var(--mono); color: var(--dim); }
+    .rb-track .lo { left: 0; } .rb-track .hi { right: 0; }
+    .rb-track .ghost, .rb-track .knob { position: absolute; top: 4px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; transition: left 1.1s cubic-bezier(.65, 0, .25, 1); }
+    .rb-track .ghost { border: 1.5px dashed var(--dim); }
+    .rb-track .knob { background: var(--molten); box-shadow: 0 0 0 3px rgba(255, 138, 61, .2), 0 0 14px rgba(255, 120, 50, .7); }
+    .rb-row .val { font: 600 .92rem/1 var(--mono); text-align: right; transition: color .4s; }
+    .rb-row.changed .val { color: var(--gold); }
+    .rb-scale { padding: 26px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(70% 60% at 50% 40%, rgba(255, 138, 61, .08), transparent 70%); }
+    .rb-scale svg { width: 100%; max-width: 330px; height: auto; }
+    .rb-wr { display: flex; align-items: baseline; justify-content: center; gap: 14px; font: 700 2.6rem/1 var(--serif); letter-spacing: -.02em; margin-top: 8px; }
+    .rb-wr span.sep { color: var(--dim); font-weight: 400; }
+    .rb-wr-l { display: flex; justify-content: center; gap: 46px; font: 700 .66rem/1 var(--caps); letter-spacing: .2em; color: var(--dim); margin-top: 8px; }
+    .rb-loss { margin-top: 18px; font: 500 .9rem/1 var(--mono); color: var(--muted); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
+    .rb-loss b { color: var(--text); }
+    .rb-note { color: var(--dim); font-size: .8rem; margin-top: 14px; line-height: 1.5; max-width: 26em; }
+    @media (max-width: 960px) { .rulebook { grid-template-columns: 1fr; } .rb-params { border-right: none; border-bottom: 1px solid var(--line); } }
+    @media (max-width: 560px) { .rb-params { padding: 20px 16px; } .rb-row { grid-template-columns: 1fr 3em; gap: 4px 10px; } .rb-row .nm { grid-column: 1 / -1; } .rb-row .rb-track { grid-column: 1; } }
+
+    /* results */
+    .matrix { margin-top: 40px; padding: 24px; overflow-x: auto; }
+    .mx { display: grid; grid-template-columns: 9.5em repeat(4, minmax(118px, 1fr)); gap: 8px; min-width: 640px; }
+    .mx .hd { font: 600 .82rem/1.2 var(--sans); color: var(--muted); display: flex; align-items: center; justify-content: center; text-align: center; padding: 8px 4px; }
+    .mx .hd.row { justify-content: flex-start; }
+    .mx .corner { font: 700 .66rem/1.3 var(--caps); letter-spacing: .14em; color: var(--dim); justify-content: flex-start; text-align: left; }
+    .mx .hd sub { font-size: .72em; }
+    .cell { position: relative; border-radius: 12px; padding: 14px 12px 12px; background: var(--bg); border: 1px solid var(--line); text-align: center; overflow: hidden; }
+    .cell .t { font: 700 1.25rem/1 var(--serif); letter-spacing: -.01em; }
+    .cell .t i { font-style: normal; color: var(--dim); font-weight: 400; margin: 0 4px; }
+    .cell .bar { height: 6px; border-radius: 6px; margin-top: 10px; background: linear-gradient(90deg, var(--empire-deep) 0 calc(var(--e) * 1%), var(--nomads-deep) calc(var(--e) * 1%) 100%); position: relative; }
+    .cell .bar::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1.5px; background: var(--gold); opacity: .8; }
+    .cell.fe { background: linear-gradient(180deg, rgba(58, 103, 217, calc(var(--d) * .006)), var(--bg)); }
+    .cell.fn { background: linear-gradient(180deg, rgba(21, 162, 109, calc(var(--d) * .006)), var(--bg)); }
+    .cell.bal { border-color: rgba(246, 197, 107, .7); box-shadow: 0 0 0 1px rgba(246, 197, 107, .25), 0 0 28px -6px rgba(246, 197, 107, .45); background: linear-gradient(180deg, rgba(246, 197, 107, .12), var(--bg)); }
+    .cell.bal::before { content: '⚖'; position: absolute; right: 8px; top: 6px; font-size: .78rem; color: var(--gold); }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; font-size: .82rem; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+    .abl-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; margin-top: 16px; }
+    .abl { padding: 24px; }
+    .abl h3 { font: 600 1.2rem/1.25 var(--serif); }
+    .abl .cap { margin: 6px 0 18px; }
+    .hb { display: grid; grid-template-columns: 8.4em 1fr 2.2em; align-items: center; gap: 12px; padding: 7px 0; font-size: .88rem; }
+    .hb .nm { color: #ddd2bf; }
+    .hb .nm b { color: var(--text); }
+    .hb .track { position: relative; height: 28px; border-radius: 8px; overflow: hidden; display: flex; background: var(--bg); }
+    .hb .track .a, .hb .track .b { display: flex; align-items: center; font: 600 .78rem/1 var(--mono); width: 0; transition: width 1.4s cubic-bezier(.65, 0, .25, 1); white-space: nowrap; overflow: hidden; }
+    .hb .track .a { background: linear-gradient(90deg, #22408f, var(--empire-deep)); padding-left: 0; color: #e8eeff; }
+    .hb .track .b { background: linear-gradient(90deg, var(--nomads-deep), #0d6b48); justify-content: flex-end; color: #e2fff2; }
+    .hb .track .a span { padding-left: 9px; } .hb .track .b span { padding-right: 9px; }
+    .hb .track::before { content: ''; position: absolute; left: 45%; width: 10%; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(246, 197, 107, .22) 0 5px, transparent 5px 10px); z-index: 1; pointer-events: none; }
+    .hb .track::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--gold); z-index: 1; }
+    .hb .ok { font-size: 1rem; text-align: center; }
+    .hb .ok.y { color: var(--gold); } .hb .ok.x { color: var(--dim); }
+    .hb.best .nm b { color: var(--gold); }
+    @media (max-width: 960px) { .abl-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .abl { padding: 18px 16px; } .hb { grid-template-columns: 6.6em 1fr 1.4em; gap: 8px; } }
+
+    /* replays */
+    .replay { margin-top: 40px; padding: 18px; }
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .tab { text-align: left; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); cursor: pointer; font: inherit; transition: all .25s; }
+    .tab b { display: block; color: var(--text); font: 600 1rem/1.25 var(--serif); margin-top: 6px; }
+    .tab .w { font: 700 .62rem/1 var(--caps); letter-spacing: .18em; }
+    .tab:hover { border-color: var(--line-2); }
+    .tab.on { border-color: rgba(255, 138, 61, .65); background: linear-gradient(180deg, rgba(255, 138, 61, .12), var(--bg)); }
+    .rp-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 22px; margin-top: 18px; }
+    .board-wrap { position: relative; border-radius: 16px; padding: 14px; background: radial-gradient(80% 80% at 50% 40%, #2a2219, #15110d); border: 1px solid var(--line); }
+    #board svg { display: block; width: 100%; height: auto; }
+    .banner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.9); opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s; text-align: center; padding: 18px 26px; border-radius: 14px; background: rgba(14, 12, 10, .9); border: 1px solid var(--line-2); backdrop-filter: blur(6px); box-shadow: 0 30px 60px -20px #000; min-width: 60%; }
+    .banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .banner .w { font: 800 2rem/1 var(--serif); letter-spacing: -.02em; }
+    .banner .s { color: var(--muted); font-size: .9rem; margin-top: 8px; }
+    .rp-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .turnbox { padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); }
+    .turnbox .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .turnbox .tn { font: 700 1.6rem/1 var(--serif); }
+    .turnbox .who { font: 700 .7rem/1 var(--caps); letter-spacing: .2em; }
+    .dots { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; margin-top: 14px; }
+    .dots i { height: 6px; border-radius: 3px; background: var(--line); transition: background .3s; }
+    .dots i.done { background: var(--line-2); }
+    .dots i.cur { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+    .forces { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .force { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+    .force .k { font: 700 .62rem/1 var(--caps); letter-spacing: .2em; }
+    .force .v { font: 700 1.5rem/1 var(--serif); margin-top: 8px; }
+    .force .v small { font: 500 .8rem/1 var(--sans); color: var(--dim); margin-left: 6px; }
+    .feed { flex: 1; min-height: 190px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); font: 400 .8rem/1.5 var(--mono); overflow: hidden; }
+    .feed .ttl { font: 700 .62rem/1 var(--caps); letter-spacing: .2em; color: var(--dim); margin-bottom: 10px; font-family: var(--caps); }
+    .feed div.l { display: flex; gap: 8px; padding: 3px 0; color: #cfc3ae; animation: feedin .35s ease both; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .feed div.l b { font-weight: 500; }
+    .feed div.l.hit { color: #ffb08a; }
+    @keyframes feedin { from { opacity: 0; transform: translateX(-6px); } }
+    .controls { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+    .ctl { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg); color: var(--text); cursor: pointer; display: grid; place-items: center; flex: none; transition: border-color .2s; }
+    .ctl:hover { border-color: var(--ember); }
+    .ctl svg { width: 18px; height: 18px; }
+    .ctl.txt { width: auto; padding: 0 12px; font: 600 .82rem/1 var(--mono); }
+    input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--ember) 0 var(--p, 0%), var(--line) var(--p, 0%) 100%); outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff3dc; border: 3px solid var(--ember); box-shadow: 0 0 10px rgba(255, 138, 61, .7); }
+    input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff3dc; border: 3px solid var(--ember); }
+    .rp-cap { margin-top: 16px; color: var(--muted); font-size: .92rem; line-height: 1.65; }
+    .rp-cap b { color: var(--text); }
+    .legend-pieces { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: .8rem; color: var(--dim); }
+    .legend-pieces span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-pieces svg { width: 22px; height: 22px; }
+    @media (max-width: 960px) { .rp-body { grid-template-columns: 1fr; } .tabs { grid-template-columns: 1fr 1fr; } .feed { min-height: 150px; } }
+    @media (max-width: 560px) { .replay { padding: 12px; } .board-wrap { padding: 8px; } .tab { padding: 12px; } .tab .w { font-size: .55rem; letter-spacing: .1em; white-space: nowrap; } .tab b { font-size: .92rem; } }
+
+    /* citation + footer */
+    .bib { position: relative; margin-top: 28px; }
+    .bib pre { font: 400 .84rem/1.65 var(--mono); padding: 24px 120px 24px 26px; white-space: pre-wrap; word-break: break-word; color: #e3d7c2; }
+    .bib pre .k { color: var(--gold); } .bib pre .s { color: #9fd8b9; }
+    .copy { position: absolute; right: 14px; top: 14px; }
+    .copy.done { border-color: var(--nomads); color: var(--nomads); }
+    footer { margin-top: 120px; border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--dim); font-size: .88rem; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; justify-content: space-between; }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--gold); }
+    footer .links { display: flex; gap: 22px; }
+
+    @media (max-width: 560px) {
+      .bib pre { padding: 64px 18px 20px; }
+      .wrap, .nav-inner { padding: 0 16px; }
+      section.block { padding-top: 84px; }
+      .meter { padding: 20px 16px 16px; }
+      .split { height: 46px; }
+      .stat { padding: 18px 16px; }
+      .matrix { padding: 16px 12px; }
+      .cta .btn { flex: 1 1 auto; justify-content: center; }
     }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .teaser-fig {
-      position: sticky;
-      top: 1.5rem;
-    }
-
-    .teaser-fig img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-    }
-
-    .teaser-fig .caption {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 0.5rem;
-      line-height: 1.4;
-    }
-
-    .authors-block {
-      padding-top: 2rem;
-      border-top: 1px solid var(--border);
-      font-size: 1.05rem;
-      color: var(--muted);
-    }
-
-    .authors-block .names {
-      margin-bottom: 0.5rem;
-      color: var(--text);
-      font-size: 1.1rem;
-    }
-
-    .authors-block .names a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .authors-block .names a:hover {
-      text-decoration: underline;
-    }
-
-    .authors-block .contact a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .authors-block .contact a:hover {
-      text-decoration: underline;
-    }
-
-    .authors-block .contact {
-      font-size: 0.9rem;
-    }
-
-    .authors-block .affiliations {
-      font-size: 1rem;
-    }
-
-    .abstract h2,
-    .section h2 {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .abstract p,
-    .section p {
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    .section {
-      margin-bottom: 2.5rem;
-    }
-
-    .section ul {
-      margin: 0.5rem 0 0 1.25rem;
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    .section li {
-      margin-bottom: 0.35rem;
-    }
-
-    .gallery {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-top: 2.5rem;
-    }
-
-    .gallery h2,
-    .gallery > p {
-      grid-column: 1 / -1;
-    }
-
-    .gallery h2 {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .gallery-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .gallery-item figcaption {
-      font-size: 0.85rem;
-      color: var(--muted);
-      padding: 0.75rem 1rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .gallery-item img {
-      display: block;
-      width: 100%;
-      height: auto;
-      vertical-align: middle;
-      filter: brightness(0.92);
-    }
-
-    @media (max-width: 640px) {
-      .gallery {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-
-    .keywords {
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .fig-block {
-      margin-bottom: 2rem;
-    }
-
-    .fig-block img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      filter: brightness(0.92);
-    }
-
-    .fig-block .caption {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 0.5rem;
-      line-height: 1.5;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-      margin: 1rem 0;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 0.5rem 0.6rem;
-      text-align: center;
-    }
-
-    th {
-      background: var(--surface);
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    td.balanced {
-      background: var(--accent-dim);
-    }
-
-    td[colspan="3"] {
-      text-align: left;
-      font-weight: 600;
-      color: var(--muted);
-      padding-top: 0.75rem;
-      border-left: none;
-    }
-
-    td[colspan="3"]:first-child {
-      padding-top: 0.5rem;
-    }
-
-    .section code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85em;
-      background: var(--surface);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
-
-    .results-section h2 {
-      margin-bottom: 0.5rem;
-    }
-
-    .results-section .table-caption {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-    }
-
-    pre.bibtex {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      overflow-x: auto;
-      margin: 0.75rem 0 0;
-      color: var(--text);
-      line-height: 1.5;
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
 <body>
-  <div class="hero-wrap">
-    <div class="hero">
-      <div class="hero-left">
-        <h1>RuleSmith</h1>
-        <p class="subtitle">Multi-Agent LLMs for Automated Game Balancing</p>
-        <p class="subtitle"><strong>NeurIPS 2026</strong></p>
-        <p class="abstract-text">
-          Game balancing is a longstanding challenge requiring repeated playtesting, expert intuition, and extensive manual tuning. We introduce <em>RuleSmith</em>, the first framework that achieves automated game balancing by leveraging the reasoning capabilities of multi-agent LLMs. It couples a game engine, multi-agent LLMs self-play, and Bayesian optimization operating over a multi-dimensional rule space. As a proof of concept, we instantiate RuleSmith on <em>CivMini</em>, a simplified civilization-style game containing heterogeneous factions, economy systems, production rules, and combat mechanics, all governed by tunable parameters. LLM agents interpret textual rulebooks and game states to generate actions, to conduct fast evaluation of balance metrics such as win-rate disparities. To search the parameter landscape efficiently, we integrate Bayesian optimization with acquisition-based adaptive sampling and discrete projection: promising candidates receive more evaluation games for accurate assessment, while exploratory candidates receive fewer games for efficient exploration. Experiments show that RuleSmith converges to highly balanced configurations and provides interpretable rule adjustments that can be directly applied to downstream game systems. Our results illustrate that LLM simulation can serve as a powerful surrogate for automating design and balancing in complex multi-agent environments.
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top"><img src="assets/logo_mark.png" alt="" width="30" height="27" />RuleSmith</a>
+      <ul class="nav-links">
+        <li><a href="#video">Video</a></li>
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#game">CivMini</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#replays">Replays</a></li>
+        <li><a href="#citation">Cite</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <canvas id="embers" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <a class="venue" href="https://arxiv.org/abs/2602.06232"><i></i>NEURIPS 2026</a>
+          <h1 class="title"><span class="molten">RuleSmith</span></h1>
+          <p class="tagline">Multi-Agent LLMs for Automated Game Balancing</p>
+          <div class="authors">
+          <p class="names">
+            <a href="https://adonis-galaxy.github.io/homepage/">Ziyao Zeng</a><sup>1</sup>,&nbsp;
+            <a href="https://haohww.github.io/">Hao Wang</a><sup>2</sup>,&nbsp;
+            <a href="https://chenliu-1996.github.io/">Chen Liu</a><sup>1</sup>,&nbsp;
+            <a href="https://lionelyao.github.io/">Youheng Yao</a><sup>1</sup>,&nbsp;
+            <a href="https://jingchengni.com/">Jingcheng Ni</a><sup>3</sup>,&nbsp;
+            <a href="https://helloworldlty.github.io/cv/">Tianyu Liu</a><sup>1</sup>,&nbsp;
+            <a href="https://sunxiatao.me/about.html">Xiatao Sun</a><sup>1</sup>,&nbsp;
+            <a href="https://fredfyyang.github.io/">Fengyu Yang</a><sup>1</sup>,&nbsp;
+            <a href="https://chenyuyou.me/">Chenyu You</a><sup>4</sup>,&nbsp;
+            <a href="https://medicine.yale.edu/profile/xiaofeng-liu/">Xiaofeng Liu</a><sup>1</sup>,&nbsp;
+            <a href="https://dannyrakita.net/">Daniel Rakita</a><sup>1</sup>,&nbsp;
+            <a href="https://math.yale.edu/profile/ronald-coifman">Ronald R. Coifman</a><sup>1</sup>,&nbsp;
+            <a href="https://medicine.yale.edu/lab/kluger/">Yuval Kluger</a><sup>1</sup>,&nbsp;
+            <a href="https://zhiwenfan.github.io/">Zhiwen Fan</a><sup>2</sup>
         </p>
-        <div class="highlight-box">
-          <p>LLM self-play + Bayesian optimization can <strong>automatically balance</strong> asymmetric strategy games from natural-language rulebooks.</p>
+            <p class="aff"><span><sup>1</sup>Yale University</span><span><sup>2</sup>Texas A&amp;M University</span><span><sup>3</sup>Brown University</span><span><sup>4</sup>Stony Brook University</span><span class="mail"><a href="mailto:ziyao.zeng@yale.edu">ziyao.zeng@yale.edu</a></span></p>
+          </div>
+          <p class="lede">LLM agents play-test the game from its <b>natural-language rulebook</b>, and Bayesian optimization tunes the rules from their win rates, turning a game where one side won <b>100%</b> of the time into a <b>51–49</b> split.</p>
+          <div class="cta">
+            <a href="https://arxiv.org/abs/2602.06232" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Paper</a>
+            <a href="https://github.com/Adonis-galaxy/RuleSmith" class="btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>Code</a>
+            <a href="#video" class="btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>Video</a>
+            <a href="#citation" class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7h4v4c0 3-1.5 5-4 6M15 7h4v4c0 3-1.5 5-4 6"/></svg>BibTeX</a>
+          </div>
         </div>
-        <div class="btn-row">
-          <a href="https://arxiv.org/abs/2602.06232" class="btn btn-primary">📄 arXiv Paper</a>
-          <a href="https://github.com/Adonis-galaxy/RuleSmith" class="btn btn-outline">🐙 GitHub Code</a>
+        <figure class="hero-art">
+          <div class="frame" id="tilt">
+            <img src="teaser.png" alt="Illustration of RuleSmith: two LLM agents play a strategy game on a war table while a Bayesian optimization engine rewrites the rulebook, and a scale between Empire and Nomads reads 50% win rate, balanced." width="2048" height="2048" />
+          </div>
+        </figure>
+      </div>
+
+    </div>
+    <div class="scroll-cue" aria-hidden="true"></div>
+  </header>
+
+  <section class="strip">
+    <div class="wrap">
+      <div class="meter reveal" id="meter">
+        <div class="meter-head">
+          <span class="lbl">Win rate · Empire vs Nomads</span>
+          <span class="phase" id="meterPhase">Hand-tuned rules <em>— one side always wins</em></span>
+        </div>
+        <div class="split" role="img" aria-label="Empire win rate moves from 100% under the authors' initial rules to 51% after RuleSmith; Nomads from 0% to 49%.">
+          <div class="se" id="mE" style="flex-basis:100%"><span id="mEv">Empire 100%</span></div>
+          <div class="sn" id="mN" style="flex-basis:0%"><span id="mNv">0%</span></div>
+          <div class="band"></div><div class="mid"></div>
+        </div>
+        <div class="meter-foot"><span>0%</span><span>balanced zone 45–55%</span><span>100%</span></div>
+      </div>
+      <div class="stats">
+        <div class="stat reveal"><div class="v molten">12</div><div class="k">tunable rule parameters across economy, combat, production and scoring</div></div>
+        <div class="stat reveal"><div class="v molten">1.9×10<sup>10</sup></div><div class="k">discrete rule configurations, too many to play-test by hand</div></div>
+        <div class="stat reveal"><div class="v molten">1.00 → 0.02</div><div class="k">balance loss, from the authors' initial rules to RuleSmith's</div></div>
+        <div class="stat reveal"><div class="v molten">Zero-shot</div><div class="k">self-play from the rulebook, with no task-specific policy training</div></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="block" id="video">
+      <div class="wrap">
+        <div class="eyebrow reveal">Watch</div>
+        <h2 class="h reveal">RuleSmith in <em>thirty seconds</em></h2>
+        <div class="video-card reveal">
+          <video controls playsinline preload="metadata" poster="assets/promo_poster.jpg">
+            <source src="assets/rulesmith_promo.mp4" type="video/mp4" />
+          </video>
         </div>
       </div>
-      <figure class="hero-right teaser-fig">
-        <img src="teaser.png" alt="Overview of RuleSmith" />
-        <p class="caption"><strong>Figure 1: Overview of RuleSmith.</strong> Multi-agent LLMs perform zero-shot self-play using solely the rule book under parameterized rule sets to automatically optimize asymmetric strategy games and other rule-driven systems.</p>
-      </figure>
-    </div>
-    <div class="authors-block">
-      <p class="names">
-        <a href="https://adonis-galaxy.github.io/homepage/">Ziyao Zeng</a><sup>1</sup>,
-        <a href="https://haohww.github.io/">Hao Wang</a><sup>2</sup>,
-        <a href="https://chenliu-1996.github.io/">Chen Liu</a><sup>1</sup>,
-        <a href="https://lionelyao.github.io/">Youheng Yao</a><sup>1</sup>,
-        <a href="https://jingchengni.com/">Jingcheng Ni</a><sup>3</sup>,
-        <a href="https://helloworldlty.github.io/cv/">Tianyu Liu</a><sup>1</sup>,
-        <a href="https://sunxiatao.me/about.html">Xiatao Sun</a><sup>1</sup>,
-        <a href="https://fredfyyang.github.io/">Fengyu Yang</a><sup>1</sup>,
-        <a href="https://chenyuyou.me/">Chenyu You</a><sup>4</sup>,
-        <a href="https://medicine.yale.edu/profile/xiaofeng-liu/">Xiaofeng Liu</a><sup>1</sup>,
-        <a href="https://dannyrakita.net/">Daniel Rakita</a><sup>1</sup>,
-        <a href="https://math.yale.edu/profile/ronald-coifman">Ronald R. Coifman</a><sup>1</sup>,
-        <a href="https://medicine.yale.edu/lab/kluger/">Yuval Kluger</a><sup>1</sup>,
-        <a href="https://zhiwenfan.github.io/">Zhiwen Fan</a><sup>2</sup>
-        &nbsp;
-      </p>
-      <p class="affiliations">
-        <sup>1</sup> Yale University &nbsp; &nbsp; <sup>2</sup> Texas A&amp;M University &nbsp; &nbsp; <sup>3</sup> Brown University &nbsp; &nbsp; <sup>4</sup> Stony Brook University
-      </p>
-      <p class="contact">
-        For any questions, please contact: <a href="mailto:ziyao.zeng@yale.edu">ziyao.zeng@yale.edu</a>
-      </p>
-    </div>
-  </div>
-
-  <div class="wrap">
-
-    <section class="section">
-      <h2>Contributions</h2>
-      <ul>
-        <li><strong>Executable self-play from natural-language rulebooks.</strong> We show that multi-agent LLMs can perform zero-shot self-play in an executable, asymmetric strategy game from natural-language rulebooks and structured game states, producing legal and verifiable actions without training.</li>
-        <li><strong>Multi-agents pipeline for automated game balancing.</strong> We present a general framework that integrates multi-agent LLMs self-play with Bayesian optimization and acquisition-based adaptive sampling to automatically adjust rule parameters and achieve balanced outcomes in asymmetric strategic environments.</li>
-        <li><strong>Comprehensive empirical validation.</strong> Through systematic evaluations on CivMini across different model sizes (2B, 8B) and faction configurations, we demonstrate that RuleSmith consistently achieves near-balanced outcomes (50% ± 5% win rates), with interpretable parameters that transfer across evaluation settings.</li>
-      </ul>
     </section>
 
-    <section class="section">
-      <h2>Method Overview</h2>
-      <p>
-        We consider balancing an asymmetric, parameterized, turn-based strategy game by optimizing its rule parameters so that two roles (Empire and Nomads) achieve approximately equal win rates when controlled by LLM agents. RuleSmith uses two LLM agents to play the game from a natural-language rulebook; a Bayesian optimizer with acquisition-based adaptive sampling searches the rule space, allocating more evaluation games to promising candidates. Continuous proposals are discretized to valid rule configurations (using the precision above) before evaluation.
-      </p>
-      <figure class="fig-block" style="margin-top: 1.5rem;">
-        <img src="method.png" alt="RuleSmith method overview" />
-        <p class="caption"><strong>Figure 2: Overview of the RuleSmith method.</strong> We represent CivMini as a parameterized rule space θ. Given a candidate θ_t, two LLM agents (Empire and Nomads) play N_t self-play games, producing a balance loss L(θ). A Bayesian optimizer maintains a surrogate g(θ) and selects new candidates by maximizing an acquisition function. The number of games N_t is adaptively set by Expected Improvement; continuous proposals are mapped to discrete rulesets via D(·) before evaluation.</p>
-      </figure>
+    <section class="block" id="abstract">
+      <div class="wrap">
+        <div class="abstract-grid">
+          <div>
+            <div class="eyebrow reveal">Abstract</div>
+            <h2 class="h reveal">Balance, <em>forged</em> by agents that play the game.</h2>
+            <div class="tldr reveal"><small>TL;DR</small>LLM self-play + Bayesian optimization can <strong class="molten">automatically balance</strong> asymmetric strategy games from natural-language rulebooks.</div>
+          </div>
+          <p class="body reveal">
+            Game balancing is a longstanding challenge requiring repeated playtesting, expert intuition, and extensive manual tuning. We introduce <em>RuleSmith</em>, the first framework that achieves automated game balancing by leveraging the reasoning capabilities of multi-agent LLMs. It couples a game engine, multi-agent LLMs self-play, and Bayesian optimization operating over a multi-dimensional rule space. As a proof of concept, we instantiate RuleSmith on <em>CivMini</em>, a simplified civilization-style game containing heterogeneous factions, economy systems, production rules, and combat mechanics, all governed by tunable parameters. LLM agents interpret textual rulebooks and game states to generate actions, to conduct fast evaluation of balance metrics such as win-rate disparities. To search the parameter landscape efficiently, we integrate Bayesian optimization with acquisition-based adaptive sampling and discrete projection: promising candidates receive more evaluation games for accurate assessment, while exploratory candidates receive fewer games for efficient exploration. Experiments show that RuleSmith converges to highly balanced configurations and provides interpretable rule adjustments that can be directly applied to downstream game systems. Our results illustrate that LLM simulation can serve as a powerful surrogate for automating design and balancing in complex multi-agent environments.
+          </p>
+        </div>
+
+        <div class="contribs">
+          <article class="card contrib reveal">
+            <svg class="ico" viewBox="0 0 48 48" fill="none" stroke="url(#ig)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe39a"/><stop offset="1" stop-color="#ff6a2b"/></linearGradient></defs><path d="M10 8h22a6 6 0 0 1 6 6v26H16a6 6 0 0 1-6-6z"/><path d="M10 34a6 6 0 0 1 6-6h22M17 15h14M17 21h10"/></svg>
+            <div class="num">I</div>
+            <h3>Executable self-play from natural-language rulebooks</h3>
+            <p>Multi-agent LLMs perform zero-shot self-play in an executable, asymmetric strategy game from natural-language rulebooks and structured game states, producing legal and verifiable actions without training.</p>
+          </article>
+          <article class="card contrib reveal">
+            <svg class="ico" viewBox="0 0 48 48" fill="none" stroke="url(#ig)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20h24c0 4-3 7-8 7H16c-5 0-8-3-8-7zM14 27l-2 8h20l-2-8M10 35h24"/><path d="M36 10l-8 8M33 7l6 6"/></svg>
+            <div class="num">II</div>
+            <h3>A multi-agent pipeline for automated balancing</h3>
+            <p>A general framework integrating multi-agent LLM self-play with Bayesian optimization and acquisition-based adaptive sampling to adjust rule parameters and reach balanced outcomes in asymmetric strategic environments.</p>
+          </article>
+          <article class="card contrib reveal">
+            <svg class="ico" viewBox="0 0 48 48" fill="none" stroke="url(#ig)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 8v32M12 40h24M10 16h28M10 16l-5 11a5 5 0 0 0 10 0zM38 16l-5 11a5 5 0 0 0 10 0z"/></svg>
+            <div class="num">III</div>
+            <h3>Comprehensive empirical validation</h3>
+            <p>Across model sizes (2B, 8B) and faction configurations on CivMini, RuleSmith consistently achieves near-balanced outcomes (50% ± 5% win rates), with interpretable parameters that transfer across evaluation settings.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <section class="section">
-      <h2>The Game: CivMini</h2>
-      <p>
-        <em>CivMini</em> is a 7×7 grid, turn-based asymmetric game. <strong>Empire</strong> has Farmers (gather only) and Soldiers (combat only); <strong>Nomads</strong> have Cavalry (combat + move 2 cells/turn, gain resources by killing). Each turn, each unit takes one action: GATHER, MOVE, BATTLE, PRODUCE_RESOURCE, PRODUCE_UNIT, or PASS. <strong>Win:</strong> destroy the opponent’s city, or else highest score at turn limit (score = weighted resources + battles won + surviving units).
-      </p>
-      <p class="table-caption"><strong>12 tunable parameters</strong> (RuleSmith optimizes these for balance):</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Parameter</th>
-            <th>Range</th>
-            <th>Precision</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td colspan="3"><em>Economy</em></td></tr>
-          <tr><td>Initial resources</td><td>[2, 10]</td><td>integer</td></tr>
-          <tr><td>Empire farmer gather</td><td>[1, 5]</td><td>integer</td></tr>
-          <tr><td>Nomads kill resource gain</td><td>[1, 10]</td><td>integer</td></tr>
-          <tr><td colspan="3"><em>Combat</em></td></tr>
-          <tr><td>Empire damage</td><td>[1, 5]</td><td>integer</td></tr>
-          <tr><td>Nomads damage</td><td>[1, 5]</td><td>integer</td></tr>
-          <tr><td>Empire soldier HP</td><td>[4, 16]</td><td>integer</td></tr>
-          <tr><td>Nomads cavalry HP</td><td>[4, 16]</td><td>integer</td></tr>
-          <tr><td colspan="3"><em>Production</em></td></tr>
-          <tr><td>Empire unit cost</td><td>[2, 10]</td><td>integer</td></tr>
-          <tr><td>Nomads unit cost</td><td>[2, 10]</td><td>integer</td></tr>
-          <tr><td colspan="3"><em>Scoring</em></td></tr>
-          <tr><td>Resource weight</td><td>[0.1, 0.5]</td><td>0.1</td></tr>
-          <tr><td>Battle weight</td><td>[1, 5]</td><td>integer</td></tr>
-          <tr><td>Unit weight</td><td>[1, 5]</td><td>integer</td></tr>
-        </tbody>
-      </table>
+    <section class="block" id="method">
+      <div class="wrap">
+        <div class="eyebrow reveal">Method</div>
+        <h2 class="h reveal">Play, measure, <em>re-forge</em>. Repeat.</h2>
+        <p class="sub reveal">We balance an asymmetric, parameterized, turn-based strategy game by optimizing its rule parameters so that two roles, Empire and Nomads, achieve approximately equal win rates when controlled by LLM agents.</p>
+        <div class="loop reveal" id="loop">
+          <div class="card loop-step"><div class="k"><i>1</i>Propose</div><h4>Candidate rules θ<sub>t</sub></h4><p>A Bayesian optimizer with a Gaussian-process surrogate proposes rules by maximizing an acquisition function.</p></div>
+          <div class="card loop-step"><div class="k"><i>2</i>Project</div><h4>Discretize with D(·)</h4><p>Continuous proposals are mapped to valid discrete rule sets (integers, or 0.1 steps) before evaluation.</p></div>
+          <div class="card loop-step"><div class="k"><i>3</i>Self-play</div><h4>LLM agents play N<sub>t</sub> games</h4><p>Empire and Nomads agents read the rulebook and game state and act. Expected Improvement sets N<sub>t</sub> ∈ [16, 64].</p></div>
+          <div class="card loop-step"><div class="k"><i>4</i>Measure</div><h4>Balance loss ℒ(θ)</h4><p>Win and draw rates give ℒ(θ), which updates the surrogate and steers the next proposal.</p></div>
+          <div class="loop-back"><span>↺ 100 iterations</span></div>
+        </div>
+        <figure class="paper-fig reveal">
+          <img src="method.png" alt="RuleSmith method diagram: an imbalanced game with parameter space Theta goes through initial parameter extraction, a Gaussian-process Bayesian optimization engine, and an LLM self-play evaluator with the CivMini engine and Empire and Nomad LLM agents, producing optimized parameters and a balanced game." width="2908" height="922" loading="lazy" />
+        </figure>
+        <p class="cap reveal"><b>Figure 2: Overview of the RuleSmith method.</b> We represent CivMini as a parameterized rule space θ. Given a candidate θ<sub>t</sub>, two LLM agents (Empire and Nomads) play N<sub>t</sub> self-play games, producing a balance loss ℒ(θ). A Bayesian optimizer maintains a surrogate g(θ) and selects new candidates by maximizing an acquisition function. The number of games N<sub>t</sub> is adaptively set by Expected Improvement; continuous proposals are mapped to discrete rulesets via D(·) before evaluation.</p>
+        <div class="eqs">
+          <div class="card eq reveal"><div class="lbl">Balance objective</div><div class="math">ℒ(θ) = |w<sub>E</sub>(θ) − 0.5| + |w<sub>N</sub>(θ) − 0.5| + 0.5·w<sub>D</sub>(θ)</div><p>w<sub>E</sub>, w<sub>N</sub>, w<sub>D</sub>: Empire win, Nomads win and draw rates over the self-play games.</p></div>
+          <div class="card eq reveal"><div class="lbl">Adaptive sampling</div><div class="math">N<sub>t</sub> ∈ [16, 64] games</div><p>Promising candidates get more games for accurate assessment; exploratory ones get fewer.</p></div>
+        </div>
+      </div>
     </section>
 
+    <section class="block" id="game">
+      <div class="wrap">
+        <div class="eyebrow reveal">The game</div>
+        <h2 class="h reveal"><em>CivMini</em>: two asymmetric factions on a 7×7 grid.</h2>
+        <p class="sub reveal">A turn-based, civilization-style game. Each turn, every unit takes one action. Win by destroying the opponent's city, or by the higher score at the turn limit (score = weighted resources + battles won + surviving units).</p>
+        <div class="game-grid">
+          <div class="card faction emp reveal">
+            <h3><svg class="tok" viewBox="0 0 24 24" data-piece="EC"></svg><span class="e">Empire</span></h3>
+            <p class="role">Builds an economy, then defends it.</p>
+            <ul>
+              <li><svg class="tok" viewBox="0 0 24 24" data-piece="F0"></svg><span><b>Farmer</b> gathers resources only</span></li>
+              <li><svg class="tok" viewBox="0 0 24 24" data-piece="S0"></svg><span><b>Soldier</b> fights only, moves 1 cell per turn</span></li>
+            </ul>
+          </div>
+          <div class="card faction nom reveal">
+            <h3><svg class="tok" viewBox="0 0 24 24" data-piece="NC"></svg><span class="n">Nomads</span></h3>
+            <p class="role">Raids for resources and strikes fast.</p>
+            <ul>
+              <li><svg class="tok" viewBox="0 0 24 24" data-piece="V0"></svg><span><b>Cavalry</b> fights and moves 2 cells per turn; gains resources by killing</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="rules-row">
+          <div class="card reveal"><h4>Actions</h4><div class="acts"><code>GATHER</code><code>MOVE</code><code>BATTLE</code><code>PRODUCE_RESOURCE</code><code>PRODUCE_UNIT</code><code>PASS</code></div></div>
+          <div class="card reveal"><h4>Victory</h4><p>Destroy the opponent's city, or else hold the highest score at the turn limit.</p></div>
+        </div>
 
-
-    <section class="section results-section">
-      <h2>Experimental Results</h2>
-      <p class="table-caption"><strong>Optimized winning chances</strong> under different training (rows) and evaluation (columns). <em>E</em> = Empire, <em>N</em> = Nomads. Each cell: Empire wins | Nomads wins. Near-balanced (50% ± 5%) in bold. Model sizes: 2B, 8B.</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Train \ Eval</th>
-            <th>E<sub>2B</sub> vs N<sub>2B</sub></th>
-            <th>E<sub>2B</sub> vs N<sub>8B</sub></th>
-            <th>E<sub>8B</sub> vs N<sub>2B</sub></th>
-            <th>E<sub>8B</sub> vs N<sub>8B</sub></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>E<sub>2B</sub> vs N<sub>2B</sub></th>
-            <td class="balanced"><strong>48 | 52</strong></td>
-            <td>32 | 68</td>
-            <td>73 | 27</td>
-            <td class="balanced"><strong>55 | 45</strong></td>
-          </tr>
-          <tr>
-            <th>E<sub>2B</sub> vs N<sub>8B</sub></th>
-            <td>81 | 19</td>
-            <td class="balanced"><strong>47 | 53</strong></td>
-            <td>91 | 9</td>
-            <td>75 | 25</td>
-          </tr>
-          <tr>
-            <th>E<sub>8B</sub> vs N<sub>2B</sub></th>
-            <td>37 | 63</td>
-            <td>6 | 94</td>
-            <td class="balanced"><strong>52 | 48</strong></td>
-            <td>29 | 71</td>
-          </tr>
-          <tr>
-            <th>E<sub>8B</sub> vs N<sub>8B</sub></th>
-            <td class="balanced"><strong>53 | 47</strong></td>
-            <td>24 | 76</td>
-            <td>81 | 19</td>
-            <td class="balanced"><strong>51 | 49</strong></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p class="table-caption" style="margin-top: 2rem;"><strong>Ablation on optimization methods.</strong> Random Search and (1+1)-ES use fixed N=64 games per iteration. BO with adaptive sampling uses N ∈ [16, 64]. Win rates as Empire | Nomads.</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Random Search</th>
-            <th>(1+1)-ES</th>
-            <th>BO (adaptive)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>13 | 87</td>
-            <td>26 | 74</td>
-            <td class="balanced"><strong>51 | 49</strong></td>
-          </tr>
-        </tbody>
-      </table>
-      <table style="margin-top: 0.5rem;">
-        <thead>
-          <tr>
-            <th>BO (N=16)</th>
-            <th>BO (N=32)</th>
-            <th>BO (N=64)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>34 | 66</td>
-            <td>61 | 39</td>
-            <td class="balanced"><strong>48 | 52</strong></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p class="table-caption" style="margin-top: 2rem;"><strong>Ablation on game designs.</strong> RuleSmith achieves balanced win rates across map sizes and turn limits (turns in parentheses).</p>
-      <table>
-        <thead>
-          <tr>
-            <th>5×5 (16)</th>
-            <th>7×7 (16)</th>
-            <th>9×9 (32)</th>
-            <th>11×11 (32)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="balanced"><strong>53 | 47</strong></td>
-            <td class="balanced"><strong>51 | 49</strong></td>
-            <td class="balanced"><strong>48 | 52</strong></td>
-            <td class="balanced"><strong>51 | 49</strong></td>
-          </tr>
-        </tbody>
-      </table>
+        <div class="card rulebook reveal" id="rulebook">
+          <div class="rb-params">
+            <div class="rb-top">
+              <h3>The rulebook, before and after</h3>
+              <div class="toggle" role="tablist" aria-label="Rule configuration">
+                <button type="button" class="on" data-cfg="0" role="tab" aria-selected="true">Hand-tuned θ₀</button>
+                <button type="button" data-cfg="1" role="tab" aria-selected="false">RuleSmith θ*</button>
+              </div>
+            </div>
+            <div id="rbRows"></div>
+          </div>
+          <div class="rb-scale">
+            <svg viewBox="0 0 320 230" id="scale" aria-hidden="true"></svg>
+            <div class="rb-wr"><span class="e" id="rbE">100%</span><span class="sep">:</span><span class="n" id="rbN">0%</span></div>
+            <div class="rb-wr-l"><span>Empire</span><span>Nomads</span></div>
+            <div class="rb-loss">balance loss ℒ = <b id="rbL">1.00</b></div>
+            <p class="rb-note">The authors' initial configuration vs. the one RuleSmith found with InternVL3.5-8B agents on both sides; win rates over 100 held-out games. All 12 parameters are tuned jointly, so no single edit is credited on its own.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="gallery">
-      <h2>Game Rollout Visualizations</h2>
-      <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem;">Representative CivMini games under balanced parameters (InternVL3.5-8B for both factions).</p>
-      <figure class="gallery-item">
-        <img src="game1.gif" alt="Game 1: Nomad high-score victory" />
-        <figcaption><strong>Nomad high-score victory (16 turns).</strong> The Nomads expanded by producing six cavalry units and overwhelmed the Empire's defense. The Empire attempted to hold a defensive line with farmers and soldiers but was gradually eliminated, resulting in a board dominated by Nomad cavalry.</figcaption>
-      </figure>
-      <figure class="gallery-item">
-        <img src="game3.gif" alt="Game 3: Empire defense victory" />
-        <figcaption><strong>Empire defense victory (16 turns).</strong> The Empire successfully defended against the Nomads' early aggression. Although the Nomads deployed four cavalry units to threaten the top-left, the Empire established a defense with three soldiers. After heavy attrition, the Empire secured the win through economic dominance, utilizing Farmer units to generate resources throughout the battle.</figcaption>
-      </figure>
-      <figure class="gallery-item">
-        <img src="game4.gif" alt="Game 4: Rapid Nomad conquest" />
-        <figcaption><strong>Rapid Nomad conquest (6 turns).</strong> Nomad Cavalry Unit 0 executed consecutive strikes on the Empire's city from turns 3 to 6, causing sustained damage. This aggression resulted in the destruction of the Empire's city and a rapid win.</figcaption>
-      </figure>
-      <figure class="gallery-item">
-        <img src="game13.gif" alt="Game 13: Empire score victory" />
-        <figcaption><strong>Empire score victory (16 turns).</strong> The Empire successfully defended against a direct Nomad attack on their city. The Nomads rushed the top-left and began attacking on turn 5, but the soldiers systematically eliminated the cavalry. The Empire retained two soldiers and two farmers, securing a higher score through unit survival and resource accumulation.</figcaption>
-      </figure>
+    <section class="block" id="results">
+      <div class="wrap">
+        <div class="eyebrow reveal">Results</div>
+        <h2 class="h reveal">Near-even outcomes, <em>wherever the rules were forged</em>.</h2>
+        <p class="sub reveal">Optimized winning chances under different training (rows) and evaluation (columns) pairings. <span class="e">E</span> = Empire, <span class="n">N</span> = Nomads; each cell is Empire wins | Nomads wins. Cells within 50% ± 5% are marked balanced. Model sizes: 2B, 8B.</p>
+
+        <div class="card matrix reveal">
+          <div class="mx" id="mx"></div>
+          <div class="legend">
+            <span><i style="background:rgba(246,197,107,.6)"></i>Balanced (50% ± 5%)</span>
+            <span><i style="background:var(--empire-deep)"></i>Empire-favored</span>
+            <span><i style="background:var(--nomads-deep)"></i>Nomads-favored</span>
+            <span style="color:var(--dim)">The diagonal (train = eval) is balanced; mismatched agent capacities shift outcomes toward the stronger side.</span>
+          </div>
+        </div>
+
+        <div class="abl-grid">
+          <div class="card abl reveal">
+            <h3>Ablation on optimization methods</h3>
+            <p class="cap">Random Search and (1+1)-ES use fixed N = 64 games per iteration; BO with adaptive sampling uses N ∈ [16, 64]. Win rates as Empire | Nomads.</p>
+            <div class="hbars" data-rows='[["Random Search",13],["(1+1)-ES",26],["BO (N = 16)",34],["BO (N = 32)",61],["BO (N = 64)",48],["BO (adaptive)",51,1]]'></div>
+          </div>
+          <div class="card abl reveal">
+            <h3>Ablation on game designs</h3>
+            <p class="cap">RuleSmith achieves balanced win rates across map sizes and turn limits (turns in parentheses).</p>
+            <div class="hbars" data-rows='[["5×5 (16)",53],["7×7 (16)",51],["9×9 (32)",48],["11×11 (32)",51]]'></div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="section">
-      <h2>Citation</h2>
-      <p>If you find our work useful, please cite:</p>
-      <pre class="bibtex">@inproceedings{zeng2026rulesmith,
-  title = {Rulesmith: multi-agent llms for automated game balancing},
-  author = {Zeng, Ziyao and Wang, Hao and Liu, Chen and Yao, Youheng and Ni, Jingcheng and Liu, Tianyu and Sun, Xiatao and Yang, Fengyu and You, Chenyu and Liu, Xiaofeng and Rakita, Daniel and Coifman, Ronald R. and Kluger, Yuval and Fan, Zhiwen},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  year = {2026}
+    <section class="block" id="replays">
+      <div class="wrap">
+        <div class="eyebrow reveal">Game rollouts</div>
+        <h2 class="h reveal">Watch the agents <em>play</em>.</h2>
+        <p class="sub reveal">Representative CivMini games under balanced parameters (InternVL3.5-8B for both factions), replayed move by move from the self-play logs. Drag the slider to scrub through the game.</p>
+        <div class="card replay reveal" id="replay">
+          <div class="tabs" id="tabs" role="tablist" aria-label="Choose a game"></div>
+          <div class="rp-body">
+            <div class="board-wrap">
+              <div id="board" role="img" aria-label="CivMini game board replay"></div>
+              <div class="banner" id="banner"><div class="w" id="bW"></div><div class="s" id="bS"></div></div>
+            </div>
+            <div class="rp-side">
+              <div class="turnbox">
+                <div class="row1"><span class="tn" id="tn">Setup</span><span class="who" id="who"></span></div>
+                <div class="dots" id="dots"></div>
+              </div>
+              <div class="forces">
+                <div class="force"><div class="k e">Empire units</div><div class="v" id="fE">2</div></div>
+                <div class="force"><div class="k n">Nomads units</div><div class="v" id="fN">2</div></div>
+              </div>
+              <div class="feed" id="feed" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="controls">
+            <button type="button" class="ctl" id="play" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button>
+            <button type="button" class="ctl" id="restart" aria-label="Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5"/></svg></button>
+            <input type="range" id="scrub" min="0" max="32" step="0.01" value="0" aria-label="Replay position" />
+            <button type="button" class="ctl txt" id="speed" aria-label="Playback speed">1×</button>
+          </div>
+          <div class="legend-pieces" id="legendPieces"></div>
+          <p class="rp-cap" id="rpCap"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="citation">
+      <div class="wrap">
+        <div class="eyebrow reveal">Citation</div>
+        <h2 class="h reveal">If you find our work useful, <em>please cite</em>.</h2>
+        <div class="card bib reveal">
+          <button type="button" class="btn copy" id="copy">Copy</button>
+<pre id="bibtex"><span class="k">@inproceedings</span>{zeng2026rulesmith,
+  title     = {<span class="s">Rulesmith: multi-agent llms for automated game balancing</span>},
+  author    = {<span class="s">Zeng, Ziyao and Wang, Hao and Liu, Chen and Yao, Youheng and Ni, Jingcheng and Liu, Tianyu and Sun, Xiatao and Yang, Fengyu and You, Chenyu and Liu, Xiaofeng and Rakita, Daniel and Coifman, Ronald R. and Kluger, Yuval and Fan, Zhiwen</span>},
+  booktitle = {<span class="s">Advances in Neural Information Processing Systems (NeurIPS)</span>},
+  year      = {<span class="s">2026</span>}
 }</pre>
+        </div>
+      </div>
     </section>
+  </main>
 
-    <footer>
-      <p>© 2026 RuleSmith. All rights reserved.</p>
-    </footer>
-  </div>
+  <footer>
+    <div class="wrap">
+      <a class="brand" href="#top"><img src="assets/logo_mark.png" alt="" width="30" height="27" />RuleSmith</a>
+      <div class="links"><a href="https://arxiv.org/abs/2602.06232">arXiv</a><a href="https://github.com/Adonis-galaxy/RuleSmith">GitHub</a><a href="mailto:ziyao.zeng@yale.edu">Contact</a></div>
+      <span>© 2026 RuleSmith. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="assets/board.js"></script>
+  <script src="assets/replays.js"></script>
+  <script>
+  (function () {
+    const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* nav: solid background once scrolled; highlight the section in view */
+    const nav = $('#nav');
+    const onScroll = () => nav.classList.toggle('scrolled', scrollY > 24);
+    addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    const links = $$('.nav-links a');
+    const secObs = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    $$('main section[id]').forEach(s => secObs.observe(s));
+
+    /* scroll reveal */
+    const rev = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rev.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    $$('.reveal').forEach((el, i) => { el.style.transitionDelay = (i % 4) * 70 + 'ms'; rev.observe(el); });
+
+    /* embers rising behind the hero */
+    (function embers() {
+      const cv = $('#embers'); if (reduce || !cv.getContext) return;
+      const ctx = cv.getContext('2d'); let W, H, dpr, ps = [], on = true;
+      const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+      const spawn = init => ({ x: Math.random() * W, y: init ? Math.random() * H : H + 10, r: .6 + Math.random() * 1.9, vy: .25 + Math.random() * .9, vx: (Math.random() - .5) * .3, ph: Math.random() * 6.28, life: 0, max: 380 + Math.random() * 500, hue: 18 + Math.random() * 26 });
+      size(); addEventListener('resize', size);
+      const N = Math.round(Math.min(90, W / 16)); for (let i = 0; i < N; i++) ps.push(spawn(true));
+      new IntersectionObserver(es => { on = es[0].isIntersecting; if (on) requestAnimationFrame(tick); }).observe(cv);
+      function tick() {
+        if (!on) return;
+        ctx.clearRect(0, 0, W, H); ctx.globalCompositeOperation = 'lighter';
+        for (const p of ps) {
+          p.life++; p.ph += .02; p.y -= p.vy; p.x += p.vx + Math.sin(p.ph) * .25;
+          const a = Math.min(1, p.life / 60) * Math.max(0, 1 - p.life / p.max) * Math.min(1, p.y / (H * .5));
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+          g.addColorStop(0, `hsla(${p.hue},100%,70%,${a})`); g.addColorStop(1, `hsla(${p.hue},100%,50%,0)`);
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, 6.283); ctx.fill();
+          if (p.life > p.max || p.y < -20) Object.assign(p, spawn(false));
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    /* teaser tilt */
+    const tilt = $('#tilt');
+    if (!reduce && matchMedia('(hover: hover)').matches) {
+      tilt.parentElement.addEventListener('mousemove', e => {
+        const r = tilt.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        tilt.style.transform = `rotateY(${x * 9}deg) rotateX(${-y * 9}deg)`;
+      });
+      tilt.parentElement.addEventListener('mouseleave', () => tilt.style.transform = '');
+    }
+
+    /* faction tokens */
+    $$('svg[data-piece]').forEach(s => {
+      const id = s.dataset.piece, side = CivBoard.sideOf(id), f = CivBoard.FAC[id[0] === 'F' ? 'F' : side];
+      const city = CivBoard.isCity(id);
+      s.innerHTML = (city ? `<rect x="1" y="1" width="22" height="22" rx="6" fill="${f.fill}" stroke="${f.hi}" stroke-width="1.2"/>` : `<circle cx="12" cy="12" r="11" fill="${f.fill}" stroke="${f.hi}" stroke-width="1.2"/>`) +
+        `<g transform="translate(4.5 4.5) scale(.625)">${CivBoard.glyph(id, '#fbf4e2', f.fill)}</g>`;
+    });
+    $('#legendPieces').innerHTML = [['EC', 'Empire city'], ['F0', 'Farmer'], ['S0', 'Soldier'], ['NC', 'Nomads city'], ['V0', 'Cavalry']].map(([id, nm]) => `<span><svg viewBox="0 0 24 24" data-piece="${id}"></svg>${nm}</span>`).join('');
+    $$('#legendPieces svg').forEach(s => {
+      const id = s.dataset.piece, f = CivBoard.FAC[id[0] === 'F' ? 'F' : CivBoard.sideOf(id)];
+      s.innerHTML = (CivBoard.isCity(id) ? `<rect x="1" y="1" width="22" height="22" rx="6" fill="${f.fill}"/>` : `<circle cx="12" cy="12" r="11" fill="${f.fill}"/>`) + `<g transform="translate(4.5 4.5) scale(.625)">${CivBoard.glyph(id, '#fbf4e2', f.fill)}</g>`;
+    });
+
+    /* win-rate meter: hand-tuned -> RuleSmith */
+    let meterDone = false;
+    new IntersectionObserver(es => {
+      if (!es[0].isIntersecting || meterDone) return; meterDone = true;
+      setTimeout(() => {
+        $('#mE').style.flexBasis = '51%'; $('#mN').style.flexBasis = '49%';
+        $('#meterPhase').innerHTML = 'After RuleSmith <em>— a near-even contest</em>';
+        countTo($('#mEv'), 100, 51, v => `Empire ${v}%`); countTo($('#mNv'), 0, 49, v => `Nomads ${v}%`);
+      }, reduce ? 0 : 900);
+    }, { threshold: .6 }).observe($('#meter'));
+    function countTo(el, a, b, fmt, dur = 1600) {
+      if (reduce) { el.textContent = fmt(b); return; }
+      const t0 = performance.now();
+      (function f(t) { const p = Math.min(1, (t - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; el.textContent = fmt(Math.round(a + (b - a) * e)); if (p < 1) requestAnimationFrame(f); })(t0);
+    }
+
+    /* method loop highlight */
+    const steps = $$('.loop-step'); let li = 0;
+    const stepOn = () => { steps.forEach((s, i) => s.classList.toggle('on', i === li)); li = (li + 1) % steps.length; };
+    stepOn(); if (!reduce) setInterval(stepOn, 2200);
+
+    /* rulebook: authors' initial configuration vs RuleSmith (InternVL3.5-8B), camera-ready Table "Human-designed vs. RuleSmith-optimized" */
+    const PARAMS = [
+      ['Economy', [['Initial resources', 2, 10, 'int', 6, 10], ['Empire farmer gather', 1, 5, 'int', 2, 1], ['Nomads kill resource gain', 1, 10, 'int', 4, 7]]],
+      ['Combat', [['Empire damage', 1, 5, 'int', 4, 4], ['Nomads damage', 1, 5, 'int', 1, 3], ['Empire soldier HP', 4, 16, 'int', 13, 9], ['Nomads cavalry HP', 4, 16, 'int', 10, 12]]],
+      ['Production', [['Empire unit cost', 2, 10, 'int', 7, 9], ['Nomads unit cost', 2, 10, 'int', 3, 8]]],
+      ['Scoring', [['Resource weight', .1, .5, '0.1', .1, .1], ['Battle weight', 1, 5, 'int', 4, 3], ['Unit weight', 1, 5, 'int', 4, 5]]],
+    ];
+    const OUT = [{ e: 100, n: 0, l: '1.00' }, { e: 51, n: 49, l: '0.02' }];
+    $('#rbRows').innerHTML = PARAMS.map(([cat, rows]) => `<div class="rb-cat">${cat}</div>` + rows.map(([nm, lo, hi, pr, a, b]) =>
+      `<div class="rb-row${a !== b ? ' changed' : ''}" data-v='${JSON.stringify([a, b])}' data-lo="${lo}" data-hi="${hi}">
+        <span class="nm">${nm}<small>${pr}</small></span>
+        <span class="rb-track"><span class="ghost"></span><span class="knob"></span><span class="lo">${lo}</span><span class="hi">${hi}</span></span>
+        <span class="val">${a}</span></div>`).join('')).join('');
+    let cfg = 0, ang = -18, angTarget = -18;
+    function setCfg(c) {
+      cfg = c;
+      $$('.toggle button').forEach(b => { const on = +b.dataset.cfg === c; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+      $$('.rb-row').forEach(r => {
+        const v = JSON.parse(r.dataset.v), lo = +r.dataset.lo, hi = +r.dataset.hi, pos = x => ((x - lo) / (hi - lo) * 100) + '%';
+        r.querySelector('.knob').style.left = pos(v[c]); r.querySelector('.ghost').style.left = pos(v[1 - c]);
+        r.querySelector('.val').textContent = v[c];
+      });
+      const o = OUT[c], p = OUT[1 - c];
+      countTo($('#rbE'), parseInt($('#rbE').textContent), o.e, v => v + '%', 1100);
+      countTo($('#rbN'), parseInt($('#rbN').textContent), o.n, v => v + '%', 1100);
+      $('#rbL').textContent = o.l;
+      angTarget = -(o.e - 50) / 50 * 18;
+      if (reduce) { ang = angTarget; drawScale(); } else animScale();
+    }
+    $$('.toggle button').forEach(b => b.addEventListener('click', () => setCfg(+b.dataset.cfg)));
+    function drawScale() {
+      const cx = 160, cy = 58, L = 112, a = ang * Math.PI / 180;
+      const ex = cx - L * Math.cos(a), ey = cy - L * Math.sin(a), nx = cx + L * Math.cos(a), ny = cy + L * Math.sin(a);
+      const pan = (x, y, id, col, hi) => `<path d="M${x} ${y}L${x - 40} ${y + 70}M${x} ${y}L${x + 40} ${y + 70}" stroke="#6b5a45" stroke-width="1.4"/>` +
+        `<path d="M${x - 50} ${y + 70}h100a50 22 0 0 1-100 0z" fill="url(#pan)" stroke="#8a6d43" stroke-width="1.2"/>` +
+        `<g transform="translate(${x - 17} ${y + 36})"><rect width="34" height="34" rx="${id[1] === 'C' ? 8 : 17}" fill="${col}" stroke="${hi}" stroke-width="1.4"/><g transform="translate(5 5) scale(1)">${CivBoard.glyph(id, '#fbf4e2', col)}</g></g>`;
+      $('#scale').innerHTML = `<defs><linearGradient id="pan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8a95a"/><stop offset="1" stop-color="#7a5627"/></linearGradient><linearGradient id="post" x1="0" x2="1"><stop offset="0" stop-color="#6e5434"/><stop offset=".5" stop-color="#c9964d"/><stop offset="1" stop-color="#6e5434"/></linearGradient></defs>` +
+        `<path d="M110 222h100l-12-14h-76z" fill="url(#post)"/><rect x="155" y="58" width="10" height="152" fill="url(#post)"/>` +
+        pan(ex, ey, 'EC', '#3a67d9', '#9fbaff') + pan(nx, ny, 'NC', '#15a26d', '#86e6bd') +
+        `<line x1="${ex}" y1="${ey}" x2="${nx}" y2="${ny}" stroke="url(#post)" stroke-width="7" stroke-linecap="round"/>` +
+        `<circle cx="${cx}" cy="${cy}" r="9" fill="#f6c56b" stroke="#7a5627" stroke-width="2"/>` +
+        `<path d="M${cx} ${cy - 30}l-6 14h12z" fill="#f6c56b"/>`;
+    }
+    let scaleRaf = 0;
+    function animScale() {
+      cancelAnimationFrame(scaleRaf);
+      const step = () => { ang += (angTarget - ang) * .08 + Math.sign(angTarget - ang) * .02; if (Math.abs(angTarget - ang) < .05) ang = angTarget; drawScale(); if (ang !== angTarget) scaleRaf = requestAnimationFrame(step); };
+      step();
+    }
+    drawScale(); setCfg(0);
+    let rbAuto = false;
+    new IntersectionObserver(es => { if (es[0].isIntersecting && !rbAuto) { rbAuto = true; setTimeout(() => cfg === 0 && setCfg(1), 1400); } }, { threshold: .5 }).observe($('#rulebook'));
+
+    /* win-rate matrix (rows: train, cols: eval) */
+    const PAIRS = ['E<sub>2B</sub> vs N<sub>2B</sub>', 'E<sub>2B</sub> vs N<sub>8B</sub>', 'E<sub>8B</sub> vs N<sub>2B</sub>', 'E<sub>8B</sub> vs N<sub>8B</sub>'];
+    const MX = [[48, 32, 73, 55], [81, 47, 91, 75], [37, 6, 52, 29], [53, 24, 81, 51]];
+    let mx = '<div class="hd corner">Train ↓ · Eval →</div>' + PAIRS.map(p => `<div class="hd"><span>${p}</span></div>`).join('');
+    MX.forEach((row, i) => {
+      mx += `<div class="hd row"><span>${PAIRS[i]}</span></div>`;
+      row.forEach(e => { const d = Math.abs(e - 50), cls = d <= 5 ? 'bal' : e > 50 ? 'fe' : 'fn';
+        mx += `<div class="cell ${cls}" style="--e:${e};--d:${d}"><div class="t"><span class="e">${e}</span><i>|</i><span class="n">${100 - e}</span></div><div class="bar"></div></div>`; });
+    });
+    $('#mx').innerHTML = mx;
+
+    /* split bars for the ablations */
+    $$('.hbars').forEach(box => {
+      const rows = JSON.parse(box.dataset.rows);
+      box.innerHTML = rows.map(([nm, e, best]) => { const ok = Math.abs(e - 50) <= 5;
+        return `<div class="hb${best ? ' best' : ''}"><span class="nm">${best ? `<b>${nm}</b>` : nm}</span><span class="track"><span class="a" data-w="${e}"><span>${e}</span></span><span class="b" data-w="${100 - e}"><span>${100 - e}</span></span></span><span class="ok ${ok ? 'y' : 'x'}" title="${ok ? 'balanced' : 'not balanced'}">${ok ? '✓' : '✗'}</span></div>`; }).join('');
+      new IntersectionObserver((es, o) => { if (!es[0].isIntersecting) return; o.disconnect();
+        box.querySelectorAll('[data-w]').forEach(el => el.style.width = el.dataset.w + '%'); }, { threshold: .4 }).observe(box);
+    });
+
+    /* replay player */
+    const META = {
+      1: ['Nomad high-score victory', '16 turns', '<b>Nomad high-score victory (16 turns).</b> The Nomads expanded by producing six cavalry units and overwhelmed the Empire\'s defense. The Empire attempted to hold a defensive line with farmers and soldiers but was gradually eliminated, resulting in a board dominated by Nomad cavalry.'],
+      5: ['Empire defense victory', '16 turns', '<b>Empire defense victory (16 turns).</b> The Empire successfully defended against the Nomads\' early aggression. Although the Nomads deployed four cavalry units to threaten the top-left, the Empire established a defense with three soldiers. After heavy attrition, the Empire secured the win through economic dominance, utilizing Farmer units to generate resources throughout the battle.'],
+      4: ['Rapid Nomad conquest', '6 turns', '<b>Rapid Nomad conquest (6 turns).</b> Nomad Cavalry Unit 0 executed consecutive strikes on the Empire\'s city from turns 3 to 6, causing sustained damage. This aggression resulted in the destruction of the Empire\'s city and a rapid win.'],
+      13: ['Empire score victory', '16 turns', '<b>Empire score victory (16 turns).</b> The Empire successfully defended against a direct Nomad attack on their city. The Nomads rushed the top-left and began attacking on turn 5, but the soldiers systematically eliminated the cavalry. The Empire retained two soldiers and two farmers, securing a higher score through unit survival and resource accumulation.'],
+    };
+    const GAMES = REPLAYS.games.map(CivBoard.prepare);
+    const R = { g: 0, s: 0, playing: false, speed: 1, last: 0, shown: -1 };
+    const SEC_PER_STEP = .85;
+    $('#tabs').innerHTML = GAMES.map((P, i) => { const m = META[P.game.n], w = P.game.winner === 'E';
+      return `<button type="button" class="tab" role="tab" data-g="${i}"><span class="w ${w ? 'e' : 'n'}">${w ? 'EMPIRE' : 'NOMADS'} WIN · ${m[1].toUpperCase()}</span><b>${m[0]}</b></button>`; }).join('');
+    $$('.tab').forEach(t => t.addEventListener('click', () => { selectGame(+t.dataset.g); play(true); }));
+    $('#dots').innerHTML = Array.from({ length: 16 }, () => '<i></i>').join('');
+
+    function selectGame(i) {
+      R.g = i; R.s = 0; R.shown = -1;
+      $$('.tab').forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-selected', k === i); });
+      $('#scrub').max = GAMES[i].n; $('#rpCap').innerHTML = META[GAMES[i].game.n][2];
+      draw();
+    }
+    function draw() {
+      const P = GAMES[R.g], s = R.s, i = Math.floor(s + 1e-9), p = s - i;
+      $('#board').innerHTML = CivBoard.svg(P, s, { uid: 'rp', labels: true, font: 'Inter, sans-serif' });
+      $('#scrub').value = s; $('#scrub').style.setProperty('--p', (s / P.n * 100) + '%');
+      const k = p > 1e-6 ? i + 1 : i;
+      if (k !== R.shown) { R.shown = k; panel(P, k); }
+      $('#banner').classList.toggle('show', s >= P.n - 1e-6);
+    }
+    function panel(P, k) {
+      const st = P.steps[k];
+      if (k === 0) { $('#tn').textContent = 'Setup'; $('#who').textContent = ''; }
+      else { $('#tn').textContent = 'Turn ' + st.t; $('#who').textContent = st.p === 'E' ? 'EMPIRE MOVES' : 'NOMADS MOVE'; $('#who').className = 'who ' + (st.p === 'E' ? 'e' : 'n'); }
+      const turnNow = k === 0 ? -1 : st.t;
+      $$('#dots i').forEach((d, j) => { d.style.display = j < P.game.turns ? '' : 'none'; d.className = j < turnNow ? 'done' : j === turnNow ? 'cur' : ''; });
+      $('#dots').style.gridTemplateColumns = `repeat(${P.game.turns},1fr)`;
+      const c = CivBoard.counts(P, k); $('#fE').textContent = c.E; $('#fN').textContent = c.N;
+      const lines = CivBoard.describe(P, k);
+      $('#feed').innerHTML = `<div class="ttl">${k === 0 ? 'Starting position' : 'Agent actions this half-turn'}</div>` + (k === 0
+        ? '<div class="l">Empire: city, 1 farmer, 1 soldier</div><div class="l">Nomads: city, 2 cavalry</div>'
+        : lines.map(l => `<div class="l${l.hit ? ' hit' : ''}"><b class="${l.side === 'E' ? 'e' : 'n'}">${l.who}</b> ${l.what}</div>`).join(''));
+      const g = P.game, last = P.steps[P.n], cityGone = !last.m.EC ? 'Empire city destroyed' : !last.m.NC ? 'Nomads city destroyed' : 'Score at the turn limit';
+      $('#bW').innerHTML = g.winner === 'E' ? '<span class="e">Empire wins</span>' : '<span class="n">Nomads win</span>';
+      $('#bS').textContent = `${cityGone} · score ${g.score[0]} – ${g.score[1]}`;
+    }
+    function play(on) {
+      R.playing = on; $('#play').innerHTML = on ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>';
+      $('#play').setAttribute('aria-label', on ? 'Pause' : 'Play');
+      if (on) { if (R.s >= GAMES[R.g].n) R.s = 0; R.last = performance.now(); requestAnimationFrame(tick); }
+    }
+    function tick(t) {
+      if (!R.playing) return;
+      const dt = Math.min(.1, (t - R.last) / 1000); R.last = t;
+      const P = GAMES[R.g]; R.s = Math.min(P.n, R.s + dt * R.speed / SEC_PER_STEP);
+      draw();
+      if (R.s >= P.n) { play(false); setTimeout(() => { if (!R.playing && R.s >= P.n && R.inView) { selectGame((R.g + 1) % GAMES.length); play(true); } }, 3200); return; }
+      requestAnimationFrame(tick);
+    }
+    $('#play').addEventListener('click', () => play(!R.playing));
+    $('#restart').addEventListener('click', () => { R.s = 0; draw(); play(true); });
+    $('#speed').addEventListener('click', () => { R.speed = R.speed === 1 ? 2 : R.speed === 2 ? .5 : 1; $('#speed').textContent = (R.speed === .5 ? '½' : R.speed) + '×'; });
+    $('#scrub').addEventListener('input', e => { play(false); R.s = +e.target.value; draw(); });
+    selectGame(0);
+    new IntersectionObserver(es => { R.inView = es[0].isIntersecting; if (R.inView && !R.started && !reduce) { R.started = true; play(true); } if (!R.inView && R.playing) play(false); }, { threshold: .35 }).observe($('#replay'));
+
+    /* copy BibTeX */
+    $('#copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText($('#bibtex').textContent); $('#copy').textContent = 'Copied ✓'; $('#copy').classList.add('done'); }
+      catch { $('#copy').textContent = 'Select & copy'; }
+      setTimeout(() => { $('#copy').textContent = 'Copy'; $('#copy').classList.remove('done'); }, 1800);
+    });
+  })();
+  </script>
 </body>
 </html>
