@@ -189,6 +189,9 @@
     /* video */
     .video-card { margin-top: 36px; padding: 10px; border-radius: 22px; background: linear-gradient(145deg, rgba(246, 197, 107, .35), rgba(60, 45, 30, .3) 45%, rgba(255, 106, 43, .3)); box-shadow: 0 40px 90px -40px rgba(0, 0, 0, .9); }
     .video-card video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; background: #000; }
+    .video-card video[hidden] { display: none; }
+    .tabs.two { grid-template-columns: 1fr 1fr; margin-top: 36px; }
+    .tabs.two + .video-card { margin-top: 14px; }
 
     /* abstract */
     .abstract-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 56px; margin-top: 8px; }
@@ -490,10 +493,17 @@
     <section class="block" id="video">
       <div class="wrap">
         <div class="eyebrow reveal">Watch</div>
-        <h2 class="h reveal">RuleSmith in <em>thirty seconds</em></h2>
+        <h2 class="h reveal">Thirty seconds, <em>or the full talk</em></h2>
+        <div class="tabs two reveal" id="vtabs" role="tablist" aria-label="Choose a video">
+          <button type="button" class="tab on" role="tab" aria-selected="true" aria-controls="vDemo"><span class="w">0:30</span><b>Demo</b></button>
+          <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="vTalk"><span class="w">4:40</span><b>Full talk</b></button>
+        </div>
         <div class="video-card reveal">
-          <video controls playsinline preload="metadata" poster="assets/promo_poster.jpg">
+          <video id="vDemo" controls playsinline preload="metadata" poster="assets/promo_poster.jpg">
             <source src="assets/rulesmith_promo.mp4" type="video/mp4" />
+          </video>
+          <video id="vTalk" controls playsinline preload="none" poster="assets/talk_poster.jpg" hidden>
+            <source src="RuleSmith_NeurIPS2026_talk_v2.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
@@ -874,12 +884,12 @@
     const SEC_PER_STEP = .85;
     $('#tabs').innerHTML = GAMES.map((P, i) => { const m = META[P.game.n], w = P.game.winner === 'E';
       return `<button type="button" class="tab" role="tab" data-g="${i}"><span class="w ${w ? 'e' : 'n'}">${w ? 'EMPIRE' : 'NOMADS'} WIN · ${m[1].toUpperCase()}</span><b>${m[0]}</b></button>`; }).join('');
-    $$('.tab').forEach(t => t.addEventListener('click', () => { selectGame(+t.dataset.g); play(true); }));
+    $$('#tabs .tab').forEach(t => t.addEventListener('click', () => { selectGame(+t.dataset.g); play(true); }));
     $('#dots').innerHTML = Array.from({ length: 16 }, () => '<i></i>').join('');
 
     function selectGame(i) {
       R.g = i; R.s = 0; R.shown = -1;
-      $$('.tab').forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-selected', k === i); });
+      $$('#tabs .tab').forEach((t, k) => { t.classList.toggle('on', k === i); t.setAttribute('aria-selected', k === i); });
       $('#scrub').max = GAMES[i].n; $('#rpCap').innerHTML = META[GAMES[i].game.n][2];
       draw();
     }
@@ -926,6 +936,13 @@
     $('#scrub').addEventListener('input', e => { play(false); R.s = +e.target.value; draw(); });
     selectGame(0);
     new IntersectionObserver(es => { R.inView = es[0].isIntersecting; if (R.inView && !R.started && !reduce) { R.started = true; play(true); } if (!R.inView && R.playing) play(false); }, { threshold: .35 }).observe($('#replay'));
+
+    /* videos: the demo and the full talk share one player frame */
+    const vids = $$('#video video'), vtabs = $$('#vtabs .tab');
+    vtabs.forEach((t, i) => t.addEventListener('click', () => {
+      vids.forEach((v, k) => { v.hidden = k !== i; if (k !== i) v.pause(); });
+      vtabs.forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); });
+    }));
 
     /* copy BibTeX */
     $('#copy').addEventListener('click', async () => {
